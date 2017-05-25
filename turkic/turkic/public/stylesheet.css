@@ -1,0 +1,141 @@
+#turkic_acceptfirst
+{
+    position : fixed;
+    top : 0;
+    left : 0;
+    width : 100%;
+/*    background-color : #BD0000;*/
+    font-size : 16px;
+    font-family : Arial;
+    font-weight : bold;
+    padding : 10px;
+/*    color : #fff;*/
+}
+
+#turkic_workerstats
+{
+    position : absolute;
+    top : 0;
+    left : 0;
+    width : 100%;
+/*    background-color : #FFD992;*/
+    font-size : 16px;
+    font-family : Arial;
+}
+
+#turkic_workerstatscontent
+{
+    padding : 10px;
+}
+
+.turkic_workerstatsnumber
+{
+    font-weight : bold;
+    display : inline;
+}
+
+.turkic_workerstatsperformance
+{
+    display : inline;
+    padding : 0 0 0 20px;
+}
+
+#turkic_workerstatsreward
+{
+    float : right;
+}
+
+#turkic_timer
+{
+    float : right;
+}
+
+#turkic_timer input
+{
+    margin-top : -5px;
+    width : 100px;
+}
+
+#turkic_timer_value
+{
+    display : inline;
+    font-weight : bold;
+    margin-left : 20px;
+}
+
+#turkic_overlay
+{
+    position : fixed;
+    top : 0;
+    left : 0;
+    width : 100%;
+    height : 100%;
+    background-color : #ccc;
+    opacity : 0.5;
+    z-index : 100000;
+}
+
+#turkic_donation
+{
+    width : 650px;
+    position : fixed;
+    top : 50px;
+    left : 50%;
+    margin-left : -325px;
+    background-color : #EBF7FF;
+    border : 5px solid #0099FF;
+    padding : 10px;
+    z-index : 1000;
+}
+
+#turkic_donation p
+{
+    width : inherit;
+}
+
+
+#turkic_donation h1
+{
+    font-family : Arial;
+    font-size : 26px;
+    font-weight : bold;
+}
+
+#turkic_donation input
+{
+    margin : 5px 0;
+}
+
+#turkic_donation label
+{
+    padding-left : 5px;
+    font-family : Arial;
+    font-size : 16px !important;
+}
+
+#turkic_donation a
+{
+    color : blue;
+}
+
+#turkic_donation img a
+{
+    border : 0;
+}
+
+#turkic_donate_close
+{
+    font-size : 14px;
+}
+
+#turkic_donation_question
+{
+    padding-bottom : 0;
+    margin-bottom : 0;
+}
+
+body
+{
+    margin-top : 50px;
+}
+

@@ -1,0 +1,12 @@
+Metadata-Version: 1.0
+Name: pyvision
+Version: 0.2.5
+Summary: A concise computer vision toolkit
+Home-page: UNKNOWN
+Author: Carl Vondrick
+Author-email: cvondric@ics.uci.edu
+License: MIT
+Description: UNKNOWN
+Platform: UNKNOWN
+Classifier: Development Status :: 1 - Planning
+Classifier: Intended Audience :: Developers

@@ -1,0 +1,14 @@
+setup.py
+scripts/turkic
+turkic/__init__.py
+turkic/api.py
+turkic/cli.py
+turkic/database.py
+turkic/geolocation.py
+turkic/models.py
+turkic/server.py
+turkic.egg-info/PKG-INFO
+turkic.egg-info/SOURCES.txt
+turkic.egg-info/dependency_links.txt
+turkic.egg-info/requires.txt
+turkic.egg-info/top_level.txt
