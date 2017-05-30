@@ -1,9 +1,18 @@
-# vatic_fpv
+## vatic_fpv
 Video Annotation Tools for Action Localization
 
-This file is primarily a to-do list for the development. We wil fill in the actual readme later
+This file is primarily a to-do list for the development. We wil fill in the proper readme later.
 
-* Resolve old dependencies
-* Remove the dependency on pyvision (vision functions) and turkic (for MT). We will use python-opencv for vision functions. 
-* Create a separate interface for naming the actions
-* Proper documentation and tests
+* We now have a simple and clean interface for video events!
+
+#To-Do-List
+
+* Web interface for action labeling (naming)
+* Backend in Python
+
+#Flow chart of our pipeline
+
+![Alt text](http://webshare.ipat.gatech.edu/coc-rim-wall-lab/web/yli440/web_diagram.svg)
+
+* All Communications between the fronend and backend will be done through a RESTful API using JSON files
+* We will need a light-weighted DB in the backend to keep track of all videos (something like redis?) 
