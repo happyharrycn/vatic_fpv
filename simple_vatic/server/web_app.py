@@ -105,6 +105,7 @@ def get_task():
     try:
         # decode json from request data into a dict
         json_file = json.JSONDecoder().decode(request_data)
+        print json_file
         if 'annotation_type' not in json_file:
             raise ValueError('annotation_type missing in request')
         else:
@@ -160,6 +161,7 @@ def return_task():
     try:
         # decode json from request data into a dict
         json_file = json.JSONDecoder().decode(request_data)
+        print json_file
         if 'annotation_type' not in json_file:
             raise ValueError('annotation_type missing in request')
         if 'id' not in json_file:
