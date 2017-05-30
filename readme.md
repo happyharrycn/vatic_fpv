@@ -4,11 +4,12 @@ Video Annotation Tools for Action Localization
 This file is primarily a to-do list for the development. We wil fill in the proper readme later.
 
 * We now have a simple and clean interface for video events!
+* We now have a working demo for the interface!
 
 #To-Do-List
 
 * Web interface for action labeling (naming)
-* Backend in Python
+* Fill in the code for task management
 
 #Flow chart of our pipeline
 
