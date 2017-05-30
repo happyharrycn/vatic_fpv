@@ -1,0 +1,225 @@
+<!DOCTYPE html5>
+<html>
+<head>
+
+<title>simple_vatic_test</title>
+
+<!-- css style files from vatic and jquery UI -->
+<link rel="stylesheet" type="text/css" href="css/stylesheet.css">
+<link rel="stylesheet" type="text/css" href="js/jquery-ui-1.12.1.custom/jquery-ui.min.css">
+
+<!-- jquery and jquery ui (they are placed locally)-->
+<script src="js/jquery-3.2.1.min.js"></script>
+<script src="js/jquery-ui-1.12.1.custom/jquery-ui.min.js"></script>
+
+<!-- video.js (using cdn) for playing videos -->
+<link href="http://vjs.zencdn.net/5.19.2/video-js.css" rel="stylesheet">
+<script src="http://vjs.zencdn.net/5.19.2/video.js"></script>
+
+<!-- testing functions -->
+<script>
+$( document ).ready(function setup_ui() {
+    
+  // the slider
+  var video_slider = $("#playerslider");
+  var video_duration = -1.0;  
+
+  // annotation buttons
+  var start_button = $('#startbutton');
+  var start_time = -1.0;
+  var end_button = $('#endbutton');
+  var end_time = -1.0;  
+  var reset_button = $('#resetbutton');
+  var submit_button = $('#submitbutton')
+
+  // annotation info
+  var annotation_info = $('#sidebar');
+  var error_info = $('#messagebar');
+
+  // set up the video player
+  var video_time = 0.0;
+  var player = videojs('my-player', {
+                    controls: true,
+                    autoplay: false,
+                    preload: 'auto'
+                  }).ready(function() {
+
+      var myPlayer = this;
+
+      // the event listeners 
+      // reg for the update event
+      this.on('timeupdate', function () {
+        video_time = myPlayer.currentTime();
+        video_slider.slider({value: video_time});
+      })
+
+      // reg for the load meta data event
+      // !duration is available after metadata is loaded
+      this.on('loadedmetadata', function () {
+        video_duration = myPlayer.duration();
+        // set up the slider
+        video_slider.slider({
+              range: "min",
+              value: 0,
+              min: 0,
+              step: 0.1,
+              max: video_duration,
+              slide: function(event, ui) {
+                  myPlayer.pause();
+                  myPlayer.currentTime(ui.value);
+              }
+        });
+
+        // setup start/end buttons
+        // they should be after slider
+        start_button.click(function() {  
+          // pause the video
+          if (!myPlayer.paused()) {
+            myPlayer.pause();
+          }
+          error_info.empty();
+
+          // set start time
+          start_time = myPlayer.currentTime();
+          if ( (end_time >= 0.0) && (end_time<=start_time) ){
+            $('<center> <p><font color="red">End time must be larger than ' + 
+                'start time!</font></p></center>').appendTo(error_info)
+          } else {
+            // disable button
+            start_button.prop("disabled", true).addClass("ui-state-disabled");
+            // update info
+            $('<center> <p><font color="red">Start: </font>' 
+                + start_time.toFixed(1) + ' Sec</p> </center> ').appendTo(annotation_info);
+            //console.log('Start at ' + start_time);
+          }
+          
+        })  
+
+        end_button.click(function() {
+          // pause the video
+          if (!myPlayer.paused()) {
+            myPlayer.pause()
+          }
+          error_info.empty();
+
+          // set end_time
+          end_time = myPlayer.currentTime();
+          if ( (start_time >= 0.0) && (end_time<=start_time) ){
+            // throw a warning
+            $('<center> <p><font color="red">End time must be larger than' + 
+                'start time!</font></p></center>').appendTo(error_info)
+          } else {
+            // disable the button
+            end_button.prop("disabled", true).addClass("ui-state-disabled");
+            // update info
+            $('<center> <p><font color="green">&nbsp&nbspEnd: </font> ' 
+                + end_time.toFixed(1) + ' Sec</p> </center> ').appendTo(annotation_info);
+            //console.log('End at ' + end_time);
+          }
+          
+        })  
+
+      })
+  });
+
+  reset_button.click(function() {
+    //reset time and enable buttons
+    start_time = -1.0;
+    end_time = -1.0;
+    start_button.prop("disabled", false).removeClass("ui-state-disabled");
+    end_button.prop("disabled", false).removeClass("ui-state-disabled");
+    annotation_info.empty();
+    console.log('Reset Start and End time');
+  })
+
+  submit_button.click(function() {
+    // sanity check 
+    if ((start_time>=0.0) && (end_time>=0.0) && (end_time>start_time)) {
+        console.log('Ready to submit: '
+            + start_time.toFixed(1) + ' -- ' + end_time.toFixed(1) + ' Sec');
+        // submission functions go here
+    }
+  })
+
+});
+</script>
+
+</head>
+
+<body>
+
+<!-- Instead of using js to generate the html, we will use python to control the UI -->
+
+<div id="container">
+<div id='annotatescreen' style='width:845px'>
+<table style='width:100%'>
+    <tr>
+       <!--  Instructions  -->
+       <td>
+       <div id='instructions'>Instructions go here</div></td>
+       <td>
+       <button id='instructionsbutton'
+                class="ui-button ui-widget ui-corner-all">Instructions</button>
+       <td>
+    </tr>
+
+    <tr style='height:20px;' ></tr>
+
+    <tr>
+        <!-- The video player -->
+        <td>
+        <video id="my-player" class="video-js" style='width:640px;height:480px;'>
+            <source src="http://vjs.zencdn.net/v/oceans.mp4" type="video/mp4">
+            <source src="http://vjs.zencdn.net/v/oceans.webm" type="video/webm">
+        </video>
+        </td>
+
+        <!-- The side bar that holds display of annotations -->
+        <td rowspan="2">
+        <div id='sidebar' style='width:205px;height:280px'></div>
+        <div id='messagebar' style='width:205px;height:200px'></div>
+        </td>
+    </tr>
+
+    <tr style='height:15px;' ></tr>
+
+    <tr>
+        <!-- slider for video player/frame info -->
+        <td>
+        <div id='playerslider'></div>
+        </td>
+        <td>
+    </tr>
+
+    <tr style='height:15px;' ></tr>
+
+    <tr>
+        <!-- play / pause the video -->
+        <td>
+            <!--  Onset and offset of actions  -->
+            <div id='eventbuttons'>
+                <button class="ui-button ui-widget ui-corner-all" 
+                    id='startbutton' style="float: left;">Start</button>
+                <button class="ui-button ui-widget ui-corner-all" 
+                    id='endbutton' style="float: left;">End</button>
+                <button class='ui-button ui-widget ui-corner-all' 
+                    id='resetbutton' style="float: right;">Reset</button>
+            </div>
+       
+        </td>
+        <td>
+        <!-- submit button -->
+        <div id='submitbar'>
+            <input id='submitbutton' 
+                class="ui-button ui-widget ui-corner-all" 
+                type="submit" value="Submit">
+        </div>
+        </td>
+    </tr>
+
+</table>
+</div>
+</div>
+
+</body>
+</html>
