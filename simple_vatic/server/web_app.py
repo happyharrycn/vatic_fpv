@@ -24,7 +24,7 @@ def load_annotation_tasks():
     """
     Wrapper for loading annotations
     """
-    # some fake data for testing 
+    # dummy data for testing 
     # need to replace this with a proper db
     annotation_tasks = [
         {
@@ -61,6 +61,7 @@ def get_next_available_task(annotation_tasks, annotation_type):
     }
 
     return task
+
 def update_task(annotation_tasks, video_id, annotation_type, json_res):
     """
     Wrapper for updating a existing task 
