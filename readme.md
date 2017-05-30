@@ -7,30 +7,30 @@ We now have
 * A simple and clean interface for trimming video events;
 * A working demo that query a task from server and submit the annotations. 
 
-#Dependencies
+# Dependencies
 
 * Python: flask werkzeug tornado (pip install them)
 * Cross-Origin Resource Sharing enabled (depends on your browser and web server)
 
-#Organization of the repo
+# Organization of the repo
 
 * simple_vatic --> all the js/python/html/css files
 * simple_vatic/www/ --> frontend web UI (js/html/css)
 * simple_vatic/server/ --> backend python code
 
-#How to Get it Running?
+# How to Get it Running?
 
 * You will need a web server for hosting the web UI (e.g. apache or nginx)
 * Copy all files (and folders) in simple_vatic/www/ to your web hosting folder (default: /var/www/html/). Make sure they have the right permission.
 * Go to simple_vatic/server folder. Run "python ./web_app.py"
 * In your browser, type "localhost/index.html". Now you should see the interface (you can use debug mod to check js logs). 
 
-#To-Do-List
+# To-Do-List
 
 * Web interface for action labeling (naming)
 * Fill in the code for task management in web_app.py
 
-#Flow chart of our pipeline
+# Flow chart of our pipeline
 
 ![Alt text](http://webshare.ipat.gatech.edu/coc-rim-wall-lab/web/yli440/web_diagram.svg)
 
