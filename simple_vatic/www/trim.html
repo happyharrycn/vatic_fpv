@@ -31,6 +31,8 @@ $( document ).ready(function setup_ui() {
   var video_slider = $("#playerslider");
   var video_duration = -1.0; 
   var video_id = -1;
+  var slider_ticks = $('#sliderticks');
+  var slider_ticks_setup = false;
 
   // annotation buttons
   var start_button = $('#startbutton');
@@ -43,9 +45,6 @@ $( document ).ready(function setup_ui() {
   // annotation info
   var annotation_info = $('#sidebar');
   var error_info = $('#messagebar');
-
-  // set up the video player
-  var video_time = 0.0;
 
   // set up the callback function
   xhr.onreadystatechange = function () {
@@ -65,7 +64,7 @@ $( document ).ready(function setup_ui() {
           // the event listeners 
           // reg for the update event
           this.on('timeupdate', function () {
-            video_time = myPlayer.currentTime();
+            var video_time = myPlayer.currentTime();
             video_slider.slider({value: video_time});
           })
 
@@ -106,7 +105,15 @@ $( document ).ready(function setup_ui() {
               // update info
               $('<center> <p><font color="red">Start: </font>' 
                   + start_time.toFixed(1) + ' Sec</p> </center> ').appendTo(annotation_info);
-              //console.log('Start at ' + start_time);
+              // put down the ticks
+              if (!slider_ticks_setup) {
+                slider_ticks.empty();
+                slider_ticks_setup = true;
+              }
+              var slider_pos = video_slider.position();
+              var tick_pos = start_time / video_duration * video_slider.width() + slider_pos.left;
+              slider_ticks.append('<div style="display:inline-block;position:absolute;left:'
+                    + tick_pos.toFixed(0) +'px;">|<br><font color="red"><b>Start</b></font>' + '</div>');
             }
             
           })  
@@ -130,9 +137,16 @@ $( document ).ready(function setup_ui() {
               // update info
               $('<center> <p><font color="green">&nbsp&nbspEnd: </font> ' 
                   + end_time.toFixed(1) + ' Sec</p> </center> ').appendTo(annotation_info);
-              //console.log('End at ' + end_time);
+              // put down the ticks
+              if (!slider_ticks_setup) {
+                slider_ticks.empty();
+                slider_ticks_setup = true;
+              }
+              var slider_pos = video_slider.position();
+              var tick_pos = end_time / video_duration * video_slider.width() + slider_pos.left;
+              slider_ticks.append('<div style="display:inline-block;position:absolute;left:'
+                    + tick_pos.toFixed(0) + 'px;">|<br><font color="green"><b>End</b></font>' + '</div>');
             }
-            
           })  
         })
       });
@@ -149,6 +163,10 @@ $( document ).ready(function setup_ui() {
     start_button.prop("disabled", false).removeClass("ui-state-disabled");
     end_button.prop("disabled", false).removeClass("ui-state-disabled");
     annotation_info.empty();
+    if (slider_ticks_setup) {
+      slider_ticks.empty();
+      slider_ticks.append('<div style="display:inline-block;position:absolute;left:0%;">&nbsp<br>&nbsp</div>');
+    }
     console.log('Reset Start and End time');
   })
 
@@ -166,12 +184,21 @@ $( document ).ready(function setup_ui() {
           if (res_xhr.readyState === 4 && res_xhr.status === 200) {
             var json = JSON.parse(res_xhr.responseText);
             console.log(json.code + ", " + json.error_msg);
-            location.reload();
+            if (json.code === 0) {
+              location.reload();  
+            } else {
+              error_info.empty();
+              $('<center> <p><font color="red">' + 
+                json.error_msg + '</font></p></center>').appendTo(error_info);
+            }
           }
         };
         var data = JSON.stringify({"id": video_id, "annotation_type": "trim", 
           "start_time": start_time.toFixed(2), "end_time": end_time.toFixed(2)});
         res_xhr.send(data);
+    } else {
+      $('<center> <p><font color="red">Please mark proper onset and offset!' + 
+                  '</font></p></center>').appendTo(error_info);
     }
   })
 
@@ -190,7 +217,11 @@ $( document ).ready(function setup_ui() {
     <tr>
        <!--  Instructions  -->
        <td>
-       <div id='instructions'>Instructions go here</div></td>
+       <div id='instructions'> 
+       <h4>Mark the onset and offset of the action within the clip. </h4> 
+       You can use the slider to control the video. Click on the start/end button to mark the temporal boundary. When you are done, do remember to submit your annotation!
+       </div>
+       </td>
        <td>
        <button id='instructionsbutton'
                 class="ui-button ui-widget ui-corner-all">Instructions</button>
@@ -218,12 +249,18 @@ $( document ).ready(function setup_ui() {
     <tr>
         <!-- slider for video player/frame info -->
         <td>
-        <div id='playerslider'></div>
+        
+        <div id='playerslider'>
+        </div>
+
+        <div id='sliderticks'>
+        <div style="display:inline-block;position:absolute;left:0%;">&nbsp<br>&nbsp</div>
+        </div>
+
         </td>
-        <td>
     </tr>
 
-    <tr style='height:15px;' ></tr>
+     <tr style='height:42px;' ></tr>
 
     <tr>
         <!-- play / pause the video -->

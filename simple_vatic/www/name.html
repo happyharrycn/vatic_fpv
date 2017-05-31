@@ -1,0 +1,220 @@
+<!DOCTYPE html5>
+<html>
+<head>
+
+<title>simple_vatic_test</title>
+
+<!-- css style files from vatic and jquery UI -->
+<link rel="stylesheet" type="text/css" href="css/stylesheet.css">
+<link rel="stylesheet" type="text/css" href="js/jquery-ui-1.12.1.custom/jquery-ui.min.css">
+
+<!-- jquery and jquery ui (they are placed locally)-->
+<script src="js/jquery-3.2.1.min.js"></script>
+<script src="js/jquery-ui-1.12.1.custom/jquery-ui.min.js"></script>
+
+<!-- video.js (using cdn) for playing videos -->
+<link href="http://vjs.zencdn.net/5.19.2/video-js.css" rel="stylesheet">
+<script src="http://vjs.zencdn.net/5.19.2/video.js"></script>
+
+<!-- testing functions -->
+<script>
+$( document ).ready(function setup_ui() {
+
+  // request a video from the backend
+  var xhr = new XMLHttpRequest();
+  var url = 'http://localhost:5050/get_task'
+  var res_url = 'http://localhost:5050/return_task'
+  xhr.open("POST", url, true);
+  xhr.setRequestHeader("Content-type", "application/json");
+
+  // action verb / nouns / vis
+  var action_verb = $("#actionverb");
+  var action_nouns = $('#objects');
+  var action_vis = $('#occluded');
+
+  // annotation buttons
+  var reset_button = $('#resetbutton');
+  var submit_button = $('#submitbutton')
+
+  // annotation info
+  var error_info = $('#messagebar');
+
+  // set up the callback function
+  xhr.onreadystatechange = function () {
+    if (xhr.readyState === 4 && xhr.status === 200) {
+        var json = JSON.parse(xhr.responseText);
+        video_id = json.id;
+
+        var player = videojs('my-player', {
+                    controls: true,
+                    autoplay: false,
+                    preload: 'auto'
+                  }).ready(function() {
+
+          var myPlayer = this;
+          myPlayer.src({type: 'video/mp4', src: json.url});
+
+          reset_button.click(function() {
+            myPlayer.currentTime(0);
+            myPlayer.play();
+          })
+
+        })
+    }
+  };
+  var data = JSON.stringify({"annotation_type": "name"});
+  xhr.send(data);
+  
+
+  // submit annotation
+  submit_button.click(function() {
+
+    var verb  = $("#actionverb :selected").text();
+    var vis = action_vis.prop('checked');
+    var nouns = action_nouns.val();
+
+    // sanity check 
+    if (nouns.length>0) {
+
+        console.log('Ready to submit: (' 
+          + verb + ', ' + vis + ', ' + nouns + ')');
+
+        var res_xhr = new XMLHttpRequest();
+        res_xhr.open("POST", res_url, true);
+        res_xhr.setRequestHeader("Content-type", "application/json");
+        res_xhr.onreadystatechange = function () {
+          if (res_xhr.readyState === 4 && res_xhr.status === 200) {
+            var json = JSON.parse(res_xhr.responseText);
+            console.log(json.code + ", " + json.error_msg);
+            if (json.code === 0) {
+              location.reload();  
+            } else {
+              error_info.empty();
+              $('<center> <p><font color="red">' + 
+                json.error_msg + '</font></p></center>').appendTo(error_info);
+            }
+          }
+        };
+        var data = JSON.stringify({"id": video_id, "annotation_type": "name", 
+          "verb": verb, "occluded" : vis, "nouns": nouns});
+        res_xhr.send(data);
+    } else {
+      error_info.empty();
+      $('<center> <p><font color="red">Please enter object names!' + 
+                  '</font></p></center>').appendTo(error_info);
+    }
+
+  })
+  
+});
+</script>
+
+</head>
+
+<body>
+
+<!-- Instead of using js to generate the html, we will use python to control the UI -->
+
+<div id="container">
+<div id='annotatescreen' style='width:845px'>
+<table style='width:100%'>
+    <tr>
+       <!--  Instructions  -->
+       <td>
+       <div id='instructions'> 
+       <h4>Name the action within the clip. </h4> 
+       Select the verb from the menu, mark if the action is partially occluded and type names of objects. 
+       When you are done, do remember to sumbit your annotation. 
+       </div>
+       </td>
+       <td>
+       <button id='instructionsbutton'
+                class="ui-button ui-widget ui-corner-all">Instructions</button>
+       <td>
+    </tr>
+
+    <tr style='height:20px;' ></tr>
+
+    <tr>
+        <!-- The video player -->
+        <td>
+        <video id="my-player" class="video-js" style='width:640px;height:480px;'>
+        </video>
+        </td>
+
+        <!-- The side bar that holds display of annotations -->
+        <td rowspan="2">
+        <div id='sidebar' class='ui-widget' style='width:205px;height:280px'>
+          <fieldset style='width:200px;'>
+            <legend>What is the action?</legend>
+            <select name="actionverb" id="actionverb">
+              <!-- should have moved to js -->
+              <option>Open</option>
+              <option>Close</option>
+              <option>Take</option>
+              <option>Put (Release)</option>
+              <option>Place</option>
+              <option>Turn on</option>
+              <option>Turn off</option>
+              <option>Wash</option>
+              <option>Dry</option>
+              <option>Cut</option>
+              <option>Move Around (object)</option>
+              <option>Pour</option>
+              <option>Squeeze</option>
+              <option>Transfer</option>
+              <option>Spread</option>
+              <option>Mix</option>
+              <option>Crack</option>
+              <option>Exam (Read)</option>
+              <option>Compress</option>
+              <option>Other</option>
+            </select>
+
+          </fieldset>
+          <br>
+          <fieldset style='width:200px;'>
+            <legend>Is it occluded?</legend>
+            <label for="occluded">Occluded</label>
+            <input type="checkbox" name="occluded" id="occluded">
+          </fieldset>
+          <br>
+          <fieldset style='width:200px;'>
+            <legend>Objects in the action</legend>
+            <label for="objects">Type names of the objects <br> (use comma to separate them)</label>
+            <input id="objects" name="objects">
+          </fieldset>
+
+        </div>
+        <div id='messagebar' style='width:205px;height:200px'></div>
+        </td>
+    </tr>
+
+    <tr style='height:15px;' ></tr>
+
+    <tr>
+        <!-- play / pause the video -->
+        <td>
+            <!--  Onset and offset of actions  -->
+            <div id='eventbuttons'>
+                <button class='ui-button ui-widget ui-corner-all' 
+                    id='resetbutton' style="float: left;">Replay</button>
+            </div>
+       
+        </td>
+        <td>
+        <!-- submit button -->
+        <div id='submitbar'>
+            <input id='submitbutton' 
+                class="ui-button ui-widget ui-corner-all" 
+                type="submit" value="Submit">
+        </div>
+        </td>
+    </tr>
+
+</table>
+</div>
+</div>
+
+</body>
+</html>
