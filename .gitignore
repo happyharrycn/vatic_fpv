@@ -1,2 +1,7 @@
 *.so
 *.o
+*.pyc
+*.mp4
+*.eaf
+*.pfsx
+*.json
