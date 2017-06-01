@@ -197,7 +197,7 @@ def parse_args():
     """
     Parse input arguments
     """
-    parser = argparse.ArgumentParser(description='Setup a web server')
+    parser = argparse.ArgumentParser(description='Setup a web server for video annotation')
     parser.add_argument('--port', dest='port',
                         help='which port to serve content on',
                         default=5050, type=int)
