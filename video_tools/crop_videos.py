@@ -67,12 +67,7 @@ def trim_video(video_file, elan_file, tmp_dir, output_dir, pad):
                                 float(ant[0])/1000 * fps))
             end_frame = int(math.ceil(
                                 float(ant[1])/1000 * fps))
-            
-            # padding the frames
-            duration = end_frame - start_frame + 1
-            start_frame = max(start_frame - int(duration*pad), 0)
-            end_frame = end_frame + int(duration*pad)
-            
+                        
             # add to crop list
             event = [start_frame, end_frame]
             crop_list.append(event)
@@ -89,7 +84,6 @@ def trim_video(video_file, elan_file, tmp_dir, output_dir, pad):
                '{:s}/%010d.jpg'.format(tmp_video_dir) 
               ]
     command = ' '.join(command)
-    print command
     try:
         output = subprocess.check_output(command, shell=True, 
                                              stderr=subprocess.STDOUT)
@@ -99,26 +93,35 @@ def trim_video(video_file, elan_file, tmp_dir, output_dir, pad):
     # repack the frames into clips
     frame_list = sorted(glob.glob(
                             os.path.join(tmp_video_dir, '*.jpg')))
+    num_frames = len(frame_list)
     clip_counter = 0
     # crop the clip from the video
     for event in crop_list:
         print "Cropping clips {:d}-{:d} in {:s}.mp4".format(
                     event[0], event[1], video_id)
 
+        # padding / truncate the events
+        start_frame, end_frame = event[0], event[1]
+        duration = end_frame - start_frame + 1
+
+        start_frame = max(start_frame - int(duration*pad), 0)
+        end_frame = min(end_frame + int(duration*pad), num_frames - 1)
+        duration = end_frame - start_frame + 1
+
+        # generate output clip
         output_clip_file = os.path.join(output_dir, 
                     '{:s}-{:d}-{:d}.mp4'.format(video_id, event[0], event[1]))
 
         command = ['ffmpeg',
                    '-r', '{:s}'.format(str(fps)),
-                   '-start_number', '{:d}'.format(event[0]),
+                   '-start_number', '{:d}'.format(start_frame),
                    '-i', '{:s}/%010d.jpg'.format(tmp_video_dir),
-                   '-vframes', '{:d}'.format(event[1]-event[0]),
+                   '-vframes', '{:d}'.format(duration),
                    '-vcodec', 'mpeg4',
                    '-b:v', '2400k', '-an',
                    '{:s}'.format(output_clip_file)
                   ]
         command = ' '.join(command)
-        print command
         try:
             output = subprocess.check_output(command, shell=True, 
                                              stderr=subprocess.STDOUT)
@@ -183,7 +186,7 @@ if __name__ == '__main__':
                    help='Annotation folder with all elan files')
     p.add_argument('output_dir', type=str,
                    help='Output directory where cropped videos will be saved.')
-    p.add_argument('-p', '--padding-format', type=float, default=0.1,
+    p.add_argument('-p', '--padding-format', type=float, default=0.25,
                    help=('This will pad the temporal axis of the video clips.'))
     p.add_argument('-n', '--num-jobs', type=int, default=1)
     p.add_argument('-t', '--tmp-dir', type=str, default='/tmp/video_trim')
