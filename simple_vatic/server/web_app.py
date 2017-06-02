@@ -38,7 +38,7 @@ def load_annotation_tasks():
             'video_src'      : 'oceans',
             'src_start_time' : 0,
             'src_end_time'   : 0,
-            # annoations : action boundary
+            # annotations : action boundary
             'start_time'     : -1.0,
             'end_time'       : -1.0,
             # annotations : action names
@@ -66,8 +66,13 @@ def update_task(annotation_tasks, video_id, annotation_type, json_res):
     """
     Wrapper for updating a existing task 
     """     
-    # dummy code 
-    return True
+    # find the task to update
+    task = filter(lambda x: x['id'] == video_id, annotation_tasks)
+    
+    # ...
+    
+    # return true if task is updated, false if not
+    return task != None
 
 @app.errorhandler(404)
 def not_found(error):
@@ -179,7 +184,7 @@ def return_task():
             flag = update_task(app.annotation_tasks, video_id, ant_type, json_file)
 
             if not flag:
-                raise ValueError('can not update the task. Please tr-try.')
+                raise ValueError('can not update the task. Please re-try.')
             else:
                 ret['code'] = 0
                 ret['error_msg'] = 'success'
