@@ -13,6 +13,9 @@ import werkzeug
 import tornado.wsgi
 import tornado.httpserver
 
+# database
+from tinydb import TinyDB, Query
+
 # misc
 import argparse
 import os
@@ -20,15 +23,16 @@ import os
 # Obtain the flask app object
 app = flask.Flask(__name__)
 
+# Instantiate a json database
+db = TinyDB('db.json')
+
 def load_annotation_tasks():
     """
     Wrapper for loading annotations
     """
-    # dummy data for testing 
-    # need to replace this with a proper db
-    annotation_tasks = [
-        {
-            'id'             : 1,
+    # dummy data for testing
+    db.insert({
+            'id'         : 1,
             'url'            : 'http://vjs.zencdn.net/v/oceans.mp4',
             # tags for annotation
             'named'          : False, 
@@ -44,9 +48,10 @@ def load_annotation_tasks():
             # annotations : action names
             'action_verb'    : '',
             'action_noun'    : []
-        },
-    ]
-    return annotation_tasks
+    })
+    
+    # returns a list of all dicts in the database
+    return db.all()
 
 def get_next_available_task(annotation_tasks, annotation_type):
     """
