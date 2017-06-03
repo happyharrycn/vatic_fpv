@@ -117,7 +117,7 @@ def trim_video(video_file, elan_file, tmp_dir, output_dir, pad):
                    '-start_number', '{:d}'.format(start_frame),
                    '-i', '{:s}/%010d.jpg'.format(tmp_video_dir),
                    '-vframes', '{:d}'.format(duration),
-                   '-vcodec', 'mpeg4',
+                   '-vcodec', 'libx264',
                    '-b:v', '2400k', '-an',
                    '{:s}'.format(output_clip_file)
                   ]
