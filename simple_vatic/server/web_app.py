@@ -69,7 +69,10 @@ def update_task(annotation_tasks, video_id, annotation_type, json_res):
     # find the task to update
     task = filter(lambda x: x['id'] == video_id, annotation_tasks)
     
-    # ...
+    # update all keys in the task
+    for key, val in json_res.items():
+        task[key] = val
+    task[annotation_type] = True
     
     # return true if task is updated, false if not
     return task != None
