@@ -82,7 +82,8 @@ def update_task(annotation_tasks, json_res):
     # find the task to update
     if ant_type == 'name':
         # explicte update of the fields
-        annotation_tasks.update({'named' : True}, eids=[eid])
+        annotation_tasks.update({'named' : True}, 
+                                eids=[eid])
         annotation_tasks.update({'occluded' : json_res['occluded']},
                                 eids=[eid])
         annotation_tasks.update({'action_noun' : json_res['action_noun']},
@@ -90,7 +91,8 @@ def update_task(annotation_tasks, json_res):
         idx = annotation_tasks.update({'action_verb' : json_res['action_verb']},
                                       eids=[eid])
     else:
-        annotation_tasks.update({'trimmed' : True}, eids=[eid])
+        annotation_tasks.update({'trimmed' : True}, 
+                                eids=[eid])
         annotation_tasks.update({'start_time' : json_res['start_time']},
                                 eids=[eid])
         idx = annotation_tasks.update({'end_time' : json_res['end_time']},
@@ -251,4 +253,3 @@ def start_from_terminal():
 
 if __name__ == '__main__':
     start_from_terminal()
-
