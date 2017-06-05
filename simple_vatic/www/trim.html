@@ -26,6 +26,7 @@ $( document ).ready(function setup_ui() {
   var res_url = 'http://localhost:5050/return_task'
   xhr.open("POST", url, true);
   xhr.setRequestHeader("Content-type", "application/json");
+  var action_header = $("#instructions-header");
 
   // the slider
   var video_slider = $("#playerslider");
@@ -52,6 +53,11 @@ $( document ).ready(function setup_ui() {
         var json = JSON.parse(xhr.responseText);
         video_id = json.id;
 
+        // setup the header
+        var action_str = json.action_verb + ' (' + json.action_noun.join(',') + ')';
+        action_header.append('<h4>Find the onset and offset of <b>' + action_str + '</b></h4>');
+
+        // setup the player
         var player = videojs('my-player', {
                     controls: true,
                     autoplay: false,
@@ -218,7 +224,7 @@ $( document ).ready(function setup_ui() {
        <!--  Instructions  -->
        <td>
        <div id='instructions'> 
-       <h4>Mark the onset and offset of the action within the clip. </h4> 
+       <div id='instructions-header'></div>
        You can use the slider to control the video. Click on the start/end button to mark the temporal boundary. When you are done, do remember to submit your annotation!
        </div>
        </td>

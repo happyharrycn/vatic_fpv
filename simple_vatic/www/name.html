@@ -45,27 +45,34 @@ $( document ).ready(function setup_ui() {
         var json = JSON.parse(xhr.responseText);
         video_id = json.id;
 
-        var player = videojs('my-player', {
+        if (json.code === -3) {
+          error_info.empty();
+          $('<center> <p><font color="red">Can not get a new task.' +
+            'If this message persists after a few re-try, ' +
+            'then all tasks are done. Thanks!' + 
+            '</font></p></center>').appendTo(error_info);
+        } else {
+          var player = videojs('my-player', {
                     controls: true,
                     autoplay: false,
                     preload: 'auto'
                   }).ready(function() {
 
-          var myPlayer = this;
-          myPlayer.src({type: 'video/mp4', src: json.url});
+            var myPlayer = this;
+            myPlayer.src({type: 'video/mp4', src: json.url});
 
-          reset_button.click(function() {
-            myPlayer.currentTime(0);
-            myPlayer.play();
+            reset_button.click(function() {
+              myPlayer.currentTime(0);
+              myPlayer.play();
+            })
+
           })
-
-        })
+        }  
     }
   };
   var data = JSON.stringify({"annotation_type": "name"});
   xhr.send(data);
   
-
   // submit annotation
   submit_button.click(function() {
 
@@ -122,7 +129,7 @@ $( document ).ready(function setup_ui() {
        <!--  Instructions  -->
        <td>
        <div id='instructions'> 
-       <h4>Name the action within the clip. </h4> 
+       <h4>Name the dominant action in the middle of the clip. </h4> 
        Select the verb from the menu, mark if the action is partially occluded and type names of objects. 
        When you are done, do remember to sumbit your annotation. 
        </div>
@@ -144,7 +151,7 @@ $( document ).ready(function setup_ui() {
 
         <!-- The side bar that holds display of annotations -->
         <td rowspan="2">
-        <div id='sidebar' class='ui-widget' style='width:205px;height:280px'>
+        <div id='sidebar' class='ui-widget' style='width:205px;height:320px'>
           <fieldset style='width:200px;'>
             <legend>What is the action?</legend>
             <select name="actionverb" id="actionverb">
@@ -152,14 +159,14 @@ $( document ).ready(function setup_ui() {
               <option>Open</option>
               <option>Close</option>
               <option>Take</option>
-              <option>Put (Release)</option>
+              <option>Put/Release</option>
               <option>Place</option>
               <option>Turn on</option>
               <option>Turn off</option>
               <option>Wash</option>
               <option>Dry</option>
               <option>Cut</option>
-              <option>Move Around (object)</option>
+              <option>Move Around (Obj)</option>
               <option>Pour</option>
               <option>Squeeze</option>
               <option>Transfer</option>
@@ -167,6 +174,9 @@ $( document ).ready(function setup_ui() {
               <option>Mix</option>
               <option>Crack</option>
               <option>Exam/Read</option>
+              <option>Compress</option>
+              <option>Wipe</option>
+              <option>Divide/Unrip</option>
               <option>Compress</option>
               <option>Other</option>
               <option>Not an action</option>
@@ -182,12 +192,12 @@ $( document ).ready(function setup_ui() {
           <br>
           <fieldset style='width:200px;'>
             <legend>Objects in the action</legend>
-            <label for="objects">Type names of the objects <br> (use comma to separate them)</label>
+            <label for="objects">Type names of the objects <br> (use comma to separate them) <br> (use "unknown" if not visible)</label>
             <input id="objects" name="objects">
           </fieldset>
 
         </div>
-        <div id='messagebar' style='width:205px;height:200px'></div>
+        <div id='messagebar' style='width:205px;height:160px'></div>
         </td>
     </tr>
 

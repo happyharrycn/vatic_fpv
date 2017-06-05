@@ -22,7 +22,7 @@ from tinydb import TinyDB, Query
 # Obtain the flask app object
 app = flask.Flask(__name__) # pylint: disable=invalid-name
 
-def load_annotation_tasks():
+def load_annotation_tasks(video_db):
     """
     Wrapper for loading annotations
     """
@@ -48,7 +48,7 @@ def load_annotation_tasks():
     # }
 
     # Instantiate a json database
-    annotation_tasks = TinyDB('video_db.json')
+    annotation_tasks = TinyDB(video_db)
     # returns the database
     return annotation_tasks
 
@@ -81,15 +81,16 @@ def update_task(annotation_tasks, json_res):
 
     # find the task to update
     if ant_type == 'name':
-        # explicte update of the fields
-        annotation_tasks.update({'named' : True}, 
+        # explicite update of the fields
+        idx = annotation_tasks.update({'occluded' : json_res['occluded']},
                                 eids=[eid])
-        annotation_tasks.update({'occluded' : json_res['occluded']},
+        idx = annotation_tasks.update({'action_noun' : json_res['nouns'].split(',')},
                                 eids=[eid])
-        annotation_tasks.update({'action_noun' : json_res['action_noun']},
-                                eids=[eid])
-        idx = annotation_tasks.update({'action_verb' : json_res['action_verb']},
+        idx = annotation_tasks.update({'action_verb' : json_res['verb']},
                                       eids=[eid])
+        if idx[0] == eid:
+            annotation_tasks.update({'named' : True}, 
+                                    eids=[eid])
     else:
         annotation_tasks.update({'trimmed' : True}, 
                                 eids=[eid])
@@ -97,9 +98,12 @@ def update_task(annotation_tasks, json_res):
                                 eids=[eid])
         idx = annotation_tasks.update({'end_time' : json_res['end_time']},
                                       eids=[eid])
+        if idx[0] == eid:
+            annotation_tasks.update({'trimmed' : True}, 
+                                    eids=[eid])
 
     # return true if task is updated, false if not
-    return idx == eid
+    return idx[0] == eid
 
 @app.errorhandler(404)
 def not_found(error):
@@ -232,6 +236,9 @@ def parse_args():
     parser.add_argument('--port', dest='port',
                         help='which port to serve content on',
                         default=5050, type=int)
+    parser.add_argument('--video_db', dest='video_db',
+                    help='json file for database',
+                    default='video_db.json', type=str)
     args = parser.parse_args()
     return args
 
@@ -242,7 +249,7 @@ def start_from_terminal():
     # parse params
     args = parse_args()
     # load annotation tasks
-    app.annotation_tasks = load_annotation_tasks()
+    app.annotation_tasks = load_annotation_tasks(args.video_db)
     # start web server using tornado
     server = tornado.httpserver.HTTPServer(tornado.wsgi.WSGIContainer(app))
     server.bind(args.port)
