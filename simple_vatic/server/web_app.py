@@ -13,14 +13,16 @@ import json
 
 # flask
 import flask
+from flask_cors import CORS, cross_origin
 import tornado.wsgi
 import tornado.httpserver
 
 # database
 from tinydb import TinyDB, Query
 
-# Obtain the flask app object
+# Obtain the flask app object (and make it cors)
 app = flask.Flask(__name__) # pylint: disable=invalid-name
+CORS(app)
 
 def load_annotation_tasks(video_db):
     """
