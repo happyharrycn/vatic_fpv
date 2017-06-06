@@ -15,7 +15,8 @@ def main(video_dir, output_db, url_prefix, extension='.mp4', frame_rate=24):
     db = TinyDB(output_db)
 
     # list all video files
-    video_files = glob.glob(os.path.join(video_dir, '*{:s}'.format(extension)))
+    video_files = sorted(glob.glob(os.path.join(
+                                    video_dir, '*{:s}'.format(extension))))
     if len(video_files) == 0:
         return
 

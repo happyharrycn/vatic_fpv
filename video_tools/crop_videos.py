@@ -111,6 +111,8 @@ def trim_video(video_file, elan_file, tmp_dir, output_dir, pad):
         start_frame = max(start_frame - int(duration*pad), 0)
         end_frame = min(end_frame + int(duration*pad), num_frames - 1)
         duration = end_frame - start_frame + 1
+        print "Padding ({:d}-{:d}) --> ({:d}-{:d})".format(
+            event[0], event[1], start_frame, end_frame)
 
         # generate output clip
         output_clip_file = os.path.join(output_dir,
