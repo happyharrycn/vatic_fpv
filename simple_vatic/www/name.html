@@ -43,15 +43,16 @@ $( document ).ready(function setup_ui() {
   xhr.onreadystatechange = function () {
     if (xhr.readyState === 4 && xhr.status === 200) {
         var json = JSON.parse(xhr.responseText);
-        video_id = json.id;
 
-        if (json.code === -3) {
+        if (json.code === -3 && 
+            json.error_msg === 'can not get a valid task. please re-try.') {
           error_info.empty();
           $('<center> <p><font color="red">Can not get a new task.' +
             'If this message persists after a few re-try, ' +
             'then all tasks are done. Thanks!' + 
             '</font></p></center>').appendTo(error_info);
         } else {
+          video_id = json.id;
           var player = videojs('my-player', {
                     controls: true,
                     autoplay: false,

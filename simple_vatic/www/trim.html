@@ -51,111 +51,124 @@ $( document ).ready(function setup_ui() {
   xhr.onreadystatechange = function () {
     if (xhr.readyState === 4 && xhr.status === 200) {
         var json = JSON.parse(xhr.responseText);
-        video_id = json.id;
 
-        // setup the header
-        var action_str = json.action_verb + ' (' + json.action_noun.join(',') + ')';
-        action_header.append('<h4>Find the onset and offset of <b>' + action_str + '</b></h4>');
+        if (json.code === -3 && 
+            json.error_msg === 'can not get a valid task. please re-try.') {
+          action_header.append('<h4>Find the onset and offset of the dominant action</h4>');
+          error_info.empty();
+          $('<center> <p><font color="red">Can not get a new task.' +
+            'If this message persists after a few re-try, ' +
+            'then all tasks are done. Thanks!' + 
+            '</font></p></center>').appendTo(error_info);
 
-        // setup the player
-        var player = videojs('my-player', {
-                    controls: true,
-                    autoplay: false,
-                    preload: 'auto'
-                  }).ready(function() {
+        } else { 
+          video_id = json.id;
 
-          var myPlayer = this;
-          myPlayer.src({type: 'video/mp4', src: json.url});
+          // setup the header
+          var action_str = json.action_verb + ' (' + json.action_noun.join(',') + ')';
+          action_header.append('<h4>Find the onset and offset of <b>' + action_str + '</b></h4>');
 
-          // the event listeners 
-          // reg for the update event
-          this.on('timeupdate', function () {
-            var video_time = myPlayer.currentTime();
-            video_slider.slider({value: video_time});
+          // setup the player
+          var player = videojs('my-player', {
+                      controls: true,
+                      autoplay: false,
+                      preload: 'auto'
+                    }).ready(function() {
+
+            var myPlayer = this;
+            myPlayer.src({type: 'video/mp4', src: json.url});
+
+            // the event listeners 
+            // reg for the update event
+            this.on('timeupdate', function () {
+              var video_time = myPlayer.currentTime();
+              video_slider.slider({value: video_time});
+            })
+
+            // reg for the load meta data event
+            // !duration is available after metadata is loaded
+            this.on('loadedmetadata', function () {
+              video_duration = myPlayer.duration();
+              // set up the slider
+              video_slider.slider({
+                    range: "min",
+                    value: 0,
+                    min: 0,
+                    step: 0.1,
+                    max: video_duration,
+                    slide: function(event, ui) {
+                      myPlayer.pause();
+                      myPlayer.currentTime(ui.value);
+                    }
+            });
+
+            // setup start/end buttons
+            // they should be after slider
+            start_button.click(function() {  
+              // pause the video
+              if (!myPlayer.paused()) {
+                myPlayer.pause();
+              }
+              error_info.empty();
+
+              // set start time
+              start_time = myPlayer.currentTime();
+              if ( (end_time >= 0.0) && (end_time<=start_time) ){
+                $('<center> <p><font color="red">End time must be larger than ' + 
+                    'start time!</font></p></center>').appendTo(error_info)
+              } else {
+                // disable button
+                start_button.prop("disabled", true).addClass("ui-state-disabled");
+                // update info
+                $('<center> <p><font color="red">Start: </font>' 
+                    + start_time.toFixed(1) + ' Sec</p> </center> ').appendTo(annotation_info);
+                // put down the ticks
+                if (!slider_ticks_setup) {
+                  slider_ticks.empty();
+                  slider_ticks_setup = true;
+                }
+                var slider_pos = video_slider.position();
+                var tick_pos = start_time / video_duration * video_slider.width() + slider_pos.left;
+                slider_ticks.append('<div style="display:inline-block;position:absolute;left:'
+                      + tick_pos.toFixed(0) +'px;">|<br><font color="red"><b>Start</b></font>' + '</div>');
+              }
+              
+            })  
+
+            end_button.click(function() {
+              // pause the video
+              if (!myPlayer.paused()) {
+                myPlayer.pause()
+              }
+              error_info.empty();
+
+              // set end_time
+              end_time = myPlayer.currentTime();
+              if ( (start_time >= 0.0) && (end_time<=start_time) ){
+                // throw a warning
+                $('<center> <p><font color="red">End time must be larger than' + 
+                    'start time!</font></p></center>').appendTo(error_info)
+              } else {
+                // disable the button
+                end_button.prop("disabled", true).addClass("ui-state-disabled");
+                // update info
+                $('<center> <p><font color="green">&nbsp&nbspEnd: </font> ' 
+                    + end_time.toFixed(1) + ' Sec</p> </center> ').appendTo(annotation_info);
+                // put down the ticks
+                if (!slider_ticks_setup) {
+                  slider_ticks.empty();
+                  slider_ticks_setup = true;
+                }
+                var slider_pos = video_slider.position();
+                var tick_pos = end_time / video_duration * video_slider.width() + slider_pos.left;
+                slider_ticks.append('<div style="display:inline-block;position:absolute;left:'
+                      + tick_pos.toFixed(0) + 'px;">|<br><font color="green"><b>End</b></font>' + '</div>');
+              }
+            })  
           })
 
-          // reg for the load meta data event
-          // !duration is available after metadata is loaded
-          this.on('loadedmetadata', function () {
-            video_duration = myPlayer.duration();
-            // set up the slider
-            video_slider.slider({
-                  range: "min",
-                  value: 0,
-                  min: 0,
-                  step: 0.1,
-                  max: video_duration,
-                  slide: function(event, ui) {
-                    myPlayer.pause();
-                    myPlayer.currentTime(ui.value);
-                  }
-          });
-
-          // setup start/end buttons
-          // they should be after slider
-          start_button.click(function() {  
-            // pause the video
-            if (!myPlayer.paused()) {
-              myPlayer.pause();
-            }
-            error_info.empty();
-
-            // set start time
-            start_time = myPlayer.currentTime();
-            if ( (end_time >= 0.0) && (end_time<=start_time) ){
-              $('<center> <p><font color="red">End time must be larger than ' + 
-                  'start time!</font></p></center>').appendTo(error_info)
-            } else {
-              // disable button
-              start_button.prop("disabled", true).addClass("ui-state-disabled");
-              // update info
-              $('<center> <p><font color="red">Start: </font>' 
-                  + start_time.toFixed(1) + ' Sec</p> </center> ').appendTo(annotation_info);
-              // put down the ticks
-              if (!slider_ticks_setup) {
-                slider_ticks.empty();
-                slider_ticks_setup = true;
-              }
-              var slider_pos = video_slider.position();
-              var tick_pos = start_time / video_duration * video_slider.width() + slider_pos.left;
-              slider_ticks.append('<div style="display:inline-block;position:absolute;left:'
-                    + tick_pos.toFixed(0) +'px;">|<br><font color="red"><b>Start</b></font>' + '</div>');
-            }
-            
-          })  
-
-          end_button.click(function() {
-            // pause the video
-            if (!myPlayer.paused()) {
-              myPlayer.pause()
-            }
-            error_info.empty();
-
-            // set end_time
-            end_time = myPlayer.currentTime();
-            if ( (start_time >= 0.0) && (end_time<=start_time) ){
-              // throw a warning
-              $('<center> <p><font color="red">End time must be larger than' + 
-                  'start time!</font></p></center>').appendTo(error_info)
-            } else {
-              // disable the button
-              end_button.prop("disabled", true).addClass("ui-state-disabled");
-              // update info
-              $('<center> <p><font color="green">&nbsp&nbspEnd: </font> ' 
-                  + end_time.toFixed(1) + ' Sec</p> </center> ').appendTo(annotation_info);
-              // put down the ticks
-              if (!slider_ticks_setup) {
-                slider_ticks.empty();
-                slider_ticks_setup = true;
-              }
-              var slider_pos = video_slider.position();
-              var tick_pos = end_time / video_duration * video_slider.width() + slider_pos.left;
-              slider_ticks.append('<div style="display:inline-block;position:absolute;left:'
-                    + tick_pos.toFixed(0) + 'px;">|<br><font color="green"><b>End</b></font>' + '</div>');
-            }
-          })  
-        })
-      });
+        });
+      } // end of if / else
     }
   };
   var data = JSON.stringify({"annotation_type": "trim"});
