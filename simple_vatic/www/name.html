@@ -28,6 +28,7 @@ $( document ).ready(function setup_ui() {
   xhr.setRequestHeader("Content-type", "application/json");
 
   // action verb / nouns / vis
+  var action_header = $("#instructions-header");
   var action_verb = $("#actionverb");
   var action_nouns = $('#objects');
   var action_vis = $('#occluded');
@@ -56,7 +57,12 @@ $( document ).ready(function setup_ui() {
             'then all tasks are done. Thanks!' + 
             '</font></p></center>').appendTo(error_info);
         } else {
+          // setup instructions
           video_id = json.id;
+          action_header.append('<h4>Name the dominant action' 
+                               + 'in the middle of the clip (ID: ' 
+                               + video_id + ' ). </h4>')
+          // setup video player
           var player = videojs('my-player', {
                     controls: true,
                     autoplay: false,
@@ -151,7 +157,7 @@ $( document ).ready(function setup_ui() {
        <!--  Instructions  -->
        <td>
        <div id='instructions'> 
-       <h4>Name the dominant action in the middle of the clip. </h4> 
+       <div id='instructions-header'></div> 
        Select the verb from the menu, mark if the action is partially occluded and type names of objects. 
        When you are done, do remember to sumbit your annotation. 
        </div>
