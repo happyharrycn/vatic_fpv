@@ -31,15 +31,20 @@ def main(video_dir, output_db, url_prefix, extension='.mp4', frame_rate=24):
         video_item = {
             'url' : os.path.join(url_prefix, video_name + extension),
             'named' : False,
+            'name_locked' : False,
+            'name_lock_time' : 0.0, 
             'occluded' : False,
             'trimmed' : False,
+            'trim_locked' : False,
+            'trim_lock_time' : 0.0,
             'video_src' : base_video_name,
             'src_start_time' : start_frame / frame_rate,
             'src_end_time' : end_frame / frame_rate,
             'start_time' : -1.0,
             'end_time' : -1.0,
             'action_verb' : '',
-            'action_noun' : []
+            'action_noun' : [],
+            'red_flag' : False
         }
 
         # check if the item is in db
