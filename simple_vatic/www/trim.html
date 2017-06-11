@@ -2,7 +2,7 @@
 <html>
 <head>
 
-<title>simple_vatic_test</title>
+<title>Video Annotation</title>
 
 <!-- css style files from vatic and jquery UI -->
 <link rel="stylesheet" type="text/css" href="css/stylesheet.css">
@@ -41,11 +41,15 @@ $( document ).ready(function setup_ui() {
   var end_button = $('#endbutton');
   var end_time = -1.0;  
   var reset_button = $('#resetbutton');
-  var submit_button = $('#submitbutton')
+  var submit_button = $('#submitbutton');
 
   // annotation info
   var annotation_info = $('#sidebar');
   var error_info = $('#messagebar');
+
+  // flag the video
+  var flag_button = $('#flagbutton');
+  var red_flag = false
 
   // set up the callback function
   xhr.onreadystatechange = function () {
@@ -189,6 +193,24 @@ $( document ).ready(function setup_ui() {
     console.log('Reset Start and End time');
   })
 
+  // red flag the video clips
+  flag_button.click(function() {
+
+    if (red_flag === false) {
+      red_flag = true;
+      console.log('You have red flag the video!');
+      error_info.empty();
+      $('<center> <p><font color="red">You have red flag this video.<br> ' + 
+        'Click Flag! button again to cancel.<br> Or click submit to send!' + 
+                  '</font></p></center>').appendTo(error_info);
+    } else {
+      red_flag = false;
+      error_info.empty();
+    }
+
+  })
+
+  // submit annotation
   submit_button.click(function() {
     // sanity check 
     if ((start_time>=0.0) && (end_time>=0.0) && (end_time>start_time)) {
@@ -291,7 +313,12 @@ $( document ).ready(function setup_ui() {
                 <button class="ui-button ui-widget ui-corner-all" 
                     id='endbutton' style="float: left;">End</button>
                 <button class='ui-button ui-widget ui-corner-all' 
-                    id='resetbutton' style="float: right;">Reset</button>
+                    id='resetbutton' style="float: left;">Reset</button>
+
+                <button class='ui-button ui-widget ui-corner-all' 
+                    id='flagbutton' style="float: right;">
+                    <font color="red">Flag!</font>
+                    </button>
             </div>
        
         </td>

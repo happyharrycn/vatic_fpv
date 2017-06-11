@@ -161,16 +161,16 @@ def update_task(annotation_tasks, json_res):
         if idx[0] == eid:
             annotation_tasks.update({'trimmed' : True}, 
                                     eids=[eid])
-            annotation_tasks.update({'trim_locked' : True}, 
+            annotation_tasks.update({'trim_locked' : False}, 
                                     eids=[eid])
 
-    #idx = annotation_tasks.update({'red_flag' : json_res['red_flag']},
-    #                                  eids=[eid])
+    idx = annotation_tasks.update({'red_flag' : json_res['red_flag']},
+                                  eids=[eid])
 
     # color print the red flag
-    #if json_res['red_flag']:
-    #    print '\033[93m' + "Task ID ({:d}) Type ({:s}) has been RED_FLAGED!".format(
-    #        eid, ant_type) + '\033[0m'
+    if json_res['red_flag']:
+        print '\033[93m' + "Task ID ({:d}) Type ({:s}) has been RED_FLAGED!".format(
+            eid, ant_type) + '\033[0m'
 
     # return true if task is updated, false if not
     return idx[0] == eid

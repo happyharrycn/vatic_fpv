@@ -2,7 +2,7 @@
 <html>
 <head>
 
-<title>simple_vatic_test</title>
+<title>Video Annotation</title>
 
 <!-- css style files from vatic and jquery UI -->
 <link rel="stylesheet" type="text/css" href="css/stylesheet.css">
@@ -34,10 +34,14 @@ $( document ).ready(function setup_ui() {
 
   // annotation buttons
   var reset_button = $('#resetbutton');
-  var submit_button = $('#submitbutton')
+  var submit_button = $('#submitbutton');
 
   // annotation info
   var error_info = $('#messagebar');
+
+  // flag the video
+  var flag_button = $('#flagbutton');
+  var red_flag = false
 
   // set up the callback function
   xhr.onreadystatechange = function () {
@@ -73,6 +77,23 @@ $( document ).ready(function setup_ui() {
   };
   var data = JSON.stringify({"annotation_type": "name"});
   xhr.send(data);
+
+  // red flag the video clips
+  flag_button.click(function() {
+
+    if (red_flag === false) {
+      red_flag = true;
+      console.log('You have red flag the video!');
+      error_info.empty();
+      $('<center> <p><font color="red">You have red flag this video.<br> ' + 
+        'Click Flag! button again to cancel.<br> Or click submit to send!' + 
+                  '</font></p></center>').appendTo(error_info);
+    } else {
+      red_flag = false;
+      error_info.empty();
+    }
+
+  })
   
   // submit annotation
   submit_button.click(function() {
@@ -82,7 +103,7 @@ $( document ).ready(function setup_ui() {
     var nouns = action_nouns.val();
 
     // sanity check 
-    if (nouns.length>0) {
+    if (nouns.length>0 || red_flag) {
 
         console.log('Ready to submit: (' 
           + verb + ', ' + vis + ', ' + nouns + ')');
@@ -104,7 +125,7 @@ $( document ).ready(function setup_ui() {
           }
         };
         var data = JSON.stringify({"id": video_id, "annotation_type": "name", 
-          "verb": verb, "occluded" : vis, "nouns": nouns});
+          "verb": verb, "occluded" : vis, "nouns": nouns, 'red_flag': red_flag});
         res_xhr.send(data);
     } else {
       error_info.empty();
@@ -167,7 +188,8 @@ $( document ).ready(function setup_ui() {
               <option>Wash</option>
               <option>Dry</option>
               <option>Cut</option>
-              <option>Move Around (Obj)</option>
+              <option>Move Around</option>
+              <option>Operate</option>
               <option>Pour</option>
               <option>Squeeze</option>
               <option>Transfer</option>
@@ -176,7 +198,7 @@ $( document ).ready(function setup_ui() {
               <option>Crack</option>
               <option>Exam/Read</option>
               <option>Compress</option>
-              <option>Wipe</option>
+              <option>Clean/Wipe</option>
               <option>Divide/Unrip</option>
               <option>Compress</option>
               <option>Other</option>
@@ -211,6 +233,10 @@ $( document ).ready(function setup_ui() {
             <div id='eventbuttons'>
                 <button class='ui-button ui-widget ui-corner-all' 
                     id='resetbutton' style="float: left;">Replay</button>
+                <button class='ui-button ui-widget ui-corner-all' 
+                    id='flagbutton' style="float: right;">
+                    <font color="red">Flag!</font>
+                    </button>
             </div>
        
         </td>
