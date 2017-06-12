@@ -32,7 +32,7 @@ def expire_locked_items():
     Expires a locked item based on its time stamp
     """
     ant_tasks = app.annotation_tasks
-    
+
     # Task: name
     locked_item = ant_tasks.search(Query()['name_locked'] == True)
 
@@ -42,9 +42,9 @@ def expire_locked_items():
             if delay > MAX_DELAY:
                 eid = item.eid
                 print "Expiring task {:d} (Name)".format(eid)
-                ant_tasks.update({'name_locked' : False}, eids = [eid])
-                idx = ant_tasks.update({'name_lock_time' : 0.0}, 
-                                              eids = [eid])
+                ant_tasks.update({'name_locked' : False}, eids=[eid])
+                idx = ant_tasks.update({'name_lock_time' : 0.0},
+                                       eids=[eid])
                 if idx[0] != eid:
                     print "Failed!"
     # Task: trim
@@ -56,9 +56,9 @@ def expire_locked_items():
             if delay > MAX_DELAY:
                 eid = item.eid
                 print "Expiring task {:d} (Trim)".format(eid)
-                ant_tasks.update({'trim_locked' : False}, eids = [eid])
-                idx = ant_tasks.update({'trim_lock_time' : 0.0}, 
-                                              eids = [eid])
+                ant_tasks.update({'trim_locked' : False}, eids=[eid])
+                idx = ant_tasks.update({'trim_lock_time' : 0.0},
+                                       eids=[eid])
                 if idx[0] != eid:
                     print "Failed!"
     return
@@ -98,7 +98,7 @@ def get_next_available_task(annotation_tasks, annotation_type):
     Wrapper for getting a new task
     """
     if annotation_type == 'name':
-        item = annotation_tasks.get((Query()['named'] == False) 
+        item = annotation_tasks.get((Query()['named'] == False)
                                     & (Query()['name_locked'] == False))
     else:
         item = annotation_tasks.get((Query()['named'] == True)
@@ -115,15 +115,15 @@ def get_next_available_task(annotation_tasks, annotation_type):
         cur_time = time.time()
         # update the lock
         if annotation_type == 'name':
-            annotation_tasks.update({'name_locked' : True}, eids = [eid])
-            idx = annotation_tasks.update({'name_lock_time' : cur_time}, 
-                                    eids = [eid])
+            annotation_tasks.update({'name_locked' : True}, eids=[eid])
+            idx = annotation_tasks.update({'name_lock_time' : cur_time},
+                                          eids=[eid])
             if idx[0] != eid:
                 return None
         else:
-            annotation_tasks.update({'trim_locked' : True}, eids = [eid])
-            idx = annotation_tasks.update({'trim_lock_time' : cur_time}, 
-                                    eids = [eid])
+            annotation_tasks.update({'trim_locked' : True}, eids=[eid])
+            idx = annotation_tasks.update({'trim_lock_time' : cur_time},
+                                          eids=[eid])
             if idx[0] != eid:
                 return None
 
@@ -147,21 +147,21 @@ def update_task(annotation_tasks, json_res):
         idx = annotation_tasks.update({'action_verb' : json_res['verb']},
                                       eids=[eid])
         if idx[0] == eid:
-            annotation_tasks.update({'named' : True}, 
+            annotation_tasks.update({'named' : True},
                                     eids=[eid])
-            annotation_tasks.update({'name_locked' : False}, 
+            annotation_tasks.update({'name_locked' : False},
                                     eids=[eid])
     else:
-        annotation_tasks.update({'trimmed' : True}, 
+        annotation_tasks.update({'trimmed' : True},
                                 eids=[eid])
         annotation_tasks.update({'start_time' : json_res['start_time']},
                                 eids=[eid])
         idx = annotation_tasks.update({'end_time' : json_res['end_time']},
                                       eids=[eid])
         if idx[0] == eid:
-            annotation_tasks.update({'trimmed' : True}, 
+            annotation_tasks.update({'trimmed' : True},
                                     eids=[eid])
-            annotation_tasks.update({'trim_locked' : False}, 
+            annotation_tasks.update({'trim_locked' : False},
                                     eids=[eid])
 
     idx = annotation_tasks.update({'red_flag' : json_res['red_flag']},
@@ -307,8 +307,8 @@ def parse_args():
                         help='which port to serve content on',
                         default=5050, type=int)
     parser.add_argument('--video_db', dest='video_db',
-                    help='json file for database',
-                    default='video_db.json', type=str)
+                        help='json file for database',
+                        default='video_db.json', type=str)
     args = parser.parse_args()
     return args
 
@@ -331,3 +331,4 @@ def start_from_terminal():
 
 if __name__ == '__main__':
     start_from_terminal()
+    
