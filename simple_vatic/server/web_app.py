@@ -25,7 +25,7 @@ app = flask.Flask(__name__) # pylint: disable=invalid-name
 CORS(app)
 
 # max delay for one task
-MAX_DELAY = 30
+MAX_DELAY = 300
 
 def expire_locked_items():
     """
