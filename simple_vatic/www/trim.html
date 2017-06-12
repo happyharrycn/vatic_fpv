@@ -136,7 +136,6 @@ $( document ).ready(function setup_ui() {
                 slider_ticks.append('<div style="display:inline-block;position:absolute;left:'
                       + tick_pos.toFixed(0) +'px;">|<br><font color="red"><b>Start</b></font>' + '</div>');
               }
-              
             })  
 
             end_button.click(function() {
@@ -309,11 +308,11 @@ $( document ).ready(function setup_ui() {
             <!--  Onset and offset of actions  -->
             <div id='eventbuttons'>
                 <button class="ui-button ui-widget ui-corner-all" 
-                    id='startbutton' style="float: left;">Start</button>
+                    accesskey="z" id='startbutton' style="float: left;">Start</button>
                 <button class="ui-button ui-widget ui-corner-all" 
-                    id='endbutton' style="float: left;">End</button>
+                    accesskey="x" id='endbutton' style="float: left;">End</button>
                 <button class='ui-button ui-widget ui-corner-all' 
-                    id='resetbutton' style="float: left;">Reset</button>
+                    accesskey="r" id='resetbutton' style="float: left;">Reset</button>
 
                 <button class='ui-button ui-widget ui-corner-all' 
                     id='flagbutton' style="float: right;">
@@ -325,7 +324,7 @@ $( document ).ready(function setup_ui() {
         <td>
         <!-- submit button -->
         <div id='submitbar'>
-            <input id='submitbutton' 
+            <input id='submitbutton'
                 class="ui-button ui-widget ui-corner-all" 
                 type="submit" value="Submit">
         </div>
