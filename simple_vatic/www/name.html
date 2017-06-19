@@ -37,28 +37,27 @@ $( document ).ready(function setup_ui() {
   var verb_params = {
     "Open": "Open (Obj)",
     "Close": "Close (Obj)",
-    "Take": "Take (Obj) | from (Obj)",
+    "Take": "Take (Obj) [from (Obj)] ",
     "Put/Release": "Put (Obj)",
     "Place": "Place (Obj) on (Obj)",
     "Turn on": "Turn on (Obj)",
     "Turn off": "Turn off (Obj)",
     "Wash": "Wash (Obj)",
-    "Dry": "Dry (Obj) | using (Obj)",
-    "Cut": "Cut (Obj)",
-    "Move Around": "Move Around (Obj)",
+    "Dry": "Dry (Obj) [using (Obj)]",
+    "Cut": "Cut (Obj) [using (Obj)]",
+    "Move Around": "Move Around (Obj) [using (Obj)]",
     "Operate": "Operate (Obj)",
     "Pour": "Pour (Obj) into (Obj)",
     "Squeeze": "Squeeze (Obj)",
     "Transfer": "Transfer (Obj) from (Obj) to (Obj)",
-    "Spread": "Spread (Obj) over (Obj)",
-    "Mix": "Mix (Obj) | with (Obj)",
-    "Crack": "Crack (Obj)",
+    "Spread": "Spread (Obj) over (Obj) [using (Obj)]",
+    "Mix": "Mix (Obj) [with (Obj)]",
+    "Crack": "Crack (Obj) [into (Obj)]",
     "Exam/Read": "Exam (Obj)",
-    "Compress": "Compress (Obj)",
-    "Clean/Wipe": "Clean (Obj) | using (Obj)",
+    "Compress": "Compress (Obj) [using (Obj)]",
+    "Clean/Wipe": "Clean (Obj) [using (Obj)]",
     "Divide/Unrip": "Divide (Obj)",
-    "Other": "Type full description!",
-    "Not an action": "Not an Action"
+    "Other": "Type full description (including verb) in the box!"
   };
 
 
@@ -197,17 +196,17 @@ $( document ).ready(function setup_ui() {
 <table style='width:100%'>
     <tr>
        <!--  Instructions  -->
-       <td>
+<!--        <td> -->
        <div id='instructions'> 
        <div id='instructions-header'></div> 
        Select the verb from the menu, mark if the action is partially occluded and type names of objects. 
        When you are done, do remember to sumbit your annotation. 
        </div>
-       </td>
-       <td>
+<!--        </td> -->
+<!--        <td>
        <button id='instructionsbutton'
                 class="ui-button ui-widget ui-corner-all">Instructions</button>
-       <td>
+       <td> -->
     </tr>
 
     <tr style='height:20px;' ></tr>
@@ -249,7 +248,6 @@ $( document ).ready(function setup_ui() {
               <option>Clean/Wipe</option>
               <option>Divide/Unrip</option>
               <option>Other</option>
-              <option>Not an action</option>
             </select>
 
           </fieldset>
