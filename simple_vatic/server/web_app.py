@@ -86,6 +86,14 @@ def load_annotation_tasks(video_db):
     #         # annotations : action names
     #         'action_verb'    : '',
     #         'action_noun'    : []
+    #         # lock session for concurrent tasks
+    #         'name_locked' : False,
+    #         'name_lock_time' : 0.0,
+    #         'trim_locked' : False,
+    #         'trim_lock_time' : 0.0,
+    #         # simple user tracker
+    #         'named_by_user' : [],
+    #         'trimmed_by_user' : []
     # }
 
     # Instantiate a json database
@@ -151,6 +159,7 @@ def update_task(annotation_tasks, json_res):
                                     eids=[eid])
             annotation_tasks.update({'name_locked' : False},
                                     eids=[eid])
+            annotation_tasks.update({'named_by_user' : json_res['user_name']})
     else:
         annotation_tasks.update({'trimmed' : True},
                                 eids=[eid])
@@ -163,6 +172,7 @@ def update_task(annotation_tasks, json_res):
                                     eids=[eid])
             annotation_tasks.update({'trim_locked' : False},
                                     eids=[eid])
+            annotation_tasks.update({'trimmed_by_user' : json_res['user_name']})
 
     idx = annotation_tasks.update({'red_flag' : json_res['red_flag']},
                                   eids=[eid])
