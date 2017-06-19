@@ -1,0 +1,104 @@
+<!DOCTYPE html5>
+<html>
+<head>
+
+<title>Video Annotation Toolkit</title>
+
+<!-- css style files from vatic and jquery UI -->
+<link rel="stylesheet" type="text/css" href="js/jquery-ui-1.12.1.custom/jquery-ui.min.css">
+<link rel="stylesheet" type="text/css" href="css/jquery.terminal-1.4.3.css">
+<link rel="stylesheet" type="text/css" href="css/stylesheet.css">
+
+
+<!-- jquery and jquery ui (they are placed locally)-->
+<script src="js/jquery-3.2.1.min.js"></script>
+<script src="js/jquery-ui-1.12.1.custom/jquery-ui.min.js"></script>
+<script src="js/jquery.terminal-1.4.3.min.js"></script>
+<script src="js/js.cookie-2.1.4.min.js"></script>
+
+
+<!-- testing functions -->
+<script>
+
+$( document ).ready(function setup_ui() {
+  
+  var has_username = false;
+  var greeting_message = "How Should I Call You?";
+  var vatic_username = Cookies.get('vatic_annotator_name');
+  var name_url = "name.html";
+  var trim_url = "trim.html";
+  if (vatic_username !== undefined) {
+    has_username = true;
+    greeting_message == "Welcome back, " + vatic_username + '!\n' 
+                        + "What do you want to do today (name | trim)?";
+  }
+
+  jQuery(function($, undefined) {
+    $('#terminal').terminal(function(command) {
+      if (command !== '') {
+        // parse the command
+        try {
+
+          if (has_username === false) {
+            has_username = true;
+            vatic_username = command;
+            this.echo("Creating new user: " + vatic_username);
+            this.echo("What do yu want to do today (name | trim)?")
+            Cookies.set('vatic_annotator_name', vatic_username, { expires: 7 });
+            this.set_prompt(vatic_username + '@desktop:~$ ');
+          } else {
+            if (command.toLowerCase() == 'trim') {
+              window.location.replace(trim_url);
+            } else if (command.toLowerCase() == 'name') {
+              window.location.replace(name_url);
+            } else if (command == 'ls') {
+              this.echo('name');
+              this.echo('trim');
+            } else {
+              this.error('Only two types of tasks are available. Type trim or name!')
+            }
+          }
+
+        } catch(e) {
+            this.error(new String(e));
+        }
+
+      } else {
+        this.echo('');
+      }
+    }, {
+      greetings: greeting_message,
+      name: 'vatic_welcome_terminal',
+      height: 600,
+      prompt: 'annotator@desktop:~$ '
+    });
+  });
+
+});
+</script>
+
+</head>
+
+<body>
+
+<!-- Instead of using js to generate the html, we will use python to control the UI -->
+
+<div id="container">
+<div id='annotatescreen' style='width:845px'>
+
+  <!--  Instructions  -->
+  <div id='Welcome'> 
+  <h3> Welcome to video annotation toolkit!</h3>
+  </div>
+
+  <div style="height: 10px;"></div>
+
+  <!-- Console alike UI   -->
+  <div id='terminal'> 
+  </div>
+        
+</div>
+</div>
+
+</body>
+</html>
