@@ -7,6 +7,11 @@ body
     user-select: none;
 }
 
+.terminal, .cmd, .terminal .terminal-output div div, .cmd .prompt {
+    font-size: 20px;
+    line-height: 24px;
+}
+
 label, .button
 {
     font-size : 12px !important;
