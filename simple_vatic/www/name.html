@@ -11,6 +11,7 @@
 <!-- jquery and jquery ui (they are placed locally)-->
 <script src="js/jquery-3.2.1.min.js"></script>
 <script src="js/jquery-ui-1.12.1.custom/jquery-ui.min.js"></script>
+<script src="js/js.cookie-2.1.4.min.js"></script>
 
 <!-- video.js (using cdn) for playing videos -->
 <link href="http://vjs.zencdn.net/5.19.2/video-js.css" rel="stylesheet">
@@ -19,6 +20,12 @@
 <!-- testing functions -->
 <script>
 $( document ).ready(function setup_ui() {
+
+  // get user name
+  var vatic_name = Cookies.get('vatic_annotator_name');
+  if (vatic_username === undefined) {
+    vatic_username = "unknown_user";
+  }
 
   // request a video from the backend
   var xhr = new XMLHttpRequest();
@@ -152,9 +159,6 @@ $( document ).ready(function setup_ui() {
     // sanity check 
     if (nouns.length>0 || red_flag) {
 
-        console.log('Ready to submit: (' 
-          + verb + ', ' + vis + ', ' + nouns + ')');
-
         var res_xhr = new XMLHttpRequest();
         res_xhr.open("POST", res_url, true);
         res_xhr.setRequestHeader("Content-type", "application/json");
@@ -172,7 +176,8 @@ $( document ).ready(function setup_ui() {
           }
         };
         var data = JSON.stringify({"id": video_id, "annotation_type": "name", 
-          "verb": verb, "occluded" : vis, "nouns": nouns, 'red_flag': red_flag});
+          "verb": verb, "occluded" : vis, "nouns": nouns, "red_flag": red_flag, 
+          "user_name" : vatic_username});
         res_xhr.send(data);
     } else {
       error_info.empty();
