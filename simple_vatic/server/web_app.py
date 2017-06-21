@@ -20,12 +20,24 @@ import tornado.httpserver
 # database
 from tinydb import TinyDB, Query
 
+# redirect stdout and stderr for logging
+import sys
+sys.stdout = open('./web_app.log', 'a', 1)
+sys.stderr = open('./web_app.err', 'a', 1)
+
 # Obtain the flask app object (and make it cors)
 app = flask.Flask(__name__) # pylint: disable=invalid-name
 CORS(app)
 
 # max delay for one task
 MAX_DELAY = 300
+
+def print_log_info(str_info):
+    """
+    Helper function for logging info
+    """
+    prefix = time.strftime("%Y-%m-%d %H:%M:%S", time.gmtime())
+    print "{:s}  {:s}".format(prefix, str_info)
 
 def expire_locked_items():
     """
@@ -41,12 +53,12 @@ def expire_locked_items():
             delay = time.time() - item['name_lock_time']
             if delay > MAX_DELAY:
                 eid = item.eid
-                print "Expiring task {:d} (Name)".format(eid)
+                print_log_info("Expiring task {:d} (Name)".format(eid))
                 ant_tasks.update({'name_locked' : False}, eids=[eid])
                 idx = ant_tasks.update({'name_lock_time' : 0.0},
                                        eids=[eid])
                 if idx[0] != eid:
-                    print "Failed!"
+                    print_log_info("Failed to expire task {:d} (Name)".format(eid))
     # Task: trim
     locked_item = ant_tasks.search(Query()['trim_locked'] == True)
 
@@ -55,12 +67,12 @@ def expire_locked_items():
             delay = time.time() - item['trim_lock_time']
             if delay > MAX_DELAY:
                 eid = item.eid
-                print "Expiring task {:d} (Trim)".format(eid)
+                print_log_info("Expiring task {:d} (Trim)".format(eid))
                 ant_tasks.update({'trim_locked' : False}, eids=[eid])
                 idx = ant_tasks.update({'trim_lock_time' : 0.0},
                                        eids=[eid])
                 if idx[0] != eid:
-                    print "Failed!"
+                    print_log_info("Failed to expire task {:d} (Trim)".format(eid))
     return
 
 def load_annotation_tasks(video_db):
@@ -181,8 +193,8 @@ def update_task(annotation_tasks, json_res):
 
     # color print the red flag
     if json_res['red_flag']:
-        print '\033[93m' + "Task ID ({:d}) Type ({:s}) has been RED_FLAGED!".format(
-            eid, ant_type) + '\033[0m'
+        print_log_info('\033[93m' + "Task ID ({:d}) Type ({:s}) has been RED_FLAGED!".format(
+            eid, ant_type) + '\033[0m')
 
     # return true if task is updated, false if not
     return idx[0] == eid
@@ -224,7 +236,7 @@ def get_task():
     try:
         # decode json from request data into a dict
         json_file = json.JSONDecoder().decode(request_data)
-        print json_file
+        print_log_info("Task request: {:s}".format(json_file))
         if 'annotation_type' not in json_file:
             raise ValueError('annotation_type missing in request')
         else:
@@ -280,7 +292,7 @@ def return_task():
     try:
         # decode json from request data into a dict
         json_file = json.JSONDecoder().decode(request_data)
-        print json_file
+        print_log_info("Task returned: {:s}".format(json_file))
         if 'annotation_type' not in json_file:
             raise ValueError('annotation_type missing in request')
         if 'id' not in json_file:
@@ -337,7 +349,7 @@ def start_from_terminal():
     server.bind(args.port)
     # set up one server
     server.start(1)
-    print "Tornado server starting on port {}".format(args.port)
+    print_log_info("Tornado server starting on port {}".format(args.port))
     tornado.ioloop.PeriodicCallback(expire_locked_items, 5000).start()
     tornado.ioloop.IOLoop.current().start()
 
