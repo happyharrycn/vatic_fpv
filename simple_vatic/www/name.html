@@ -116,7 +116,7 @@ $( document ).ready(function setup_ui() {
         }  
     }
   };
-  var data = JSON.stringify({"annotation_type": "name"});
+  var data = JSON.stringify({"annotation_type": "name", "user_name" : vatic_username});
   xhr.send(data);
 
   // create select menu

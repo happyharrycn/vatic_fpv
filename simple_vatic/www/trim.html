@@ -181,7 +181,7 @@ $( document ).ready(function setup_ui() {
       } // end of if / else
     }
   };
-  var data = JSON.stringify({"annotation_type": "trim"});
+  var data = JSON.stringify({"annotation_type": "trim", "user_name" : vatic_username});
   xhr.send(data);
   
   // set up callback for other buttons (does not depend on the video player)
