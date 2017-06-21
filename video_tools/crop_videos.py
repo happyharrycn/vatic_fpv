@@ -156,53 +156,6 @@ def trim_video_wrapper(file_pair, tmp_dir, output_dir, pad):
     status = tuple([video_id, trimmed, log])
     return status
 
-def check_annotatoins(file_pairs):
-    """
-    Simple sanity check for elan file
-    """
-    total_num_events = 0
-    total_duration = 0.0
-    for file_pair in file_pairs:
-        video_file, elan_file = file_pair[0], file_pair[1]
-        video_id = os.path.basename(video_file).split('.mp4')[0]
-
-        # load elan file and check the annotations
-        eafob = elan.Eaf(elan_file)
-
-        # check the default/side tier
-        num_events = 0
-        end_time = 0.0
-        duration = 0.0
-        for tier_name in ['default', 'side']:
-            for ant in eafob.get_annotation_data_for_tier(tier_name):
-                # get start / ending frames
-                if ant[0] > end_time:
-                    end_time = ant[0]
-                num_events += 1
-
-                event_duration = (ant[1] - ant[0])/1000
-                duration += event_duration
-                if duration > 30:
-                    print "{:s} --> {:s} : ({:d}--{:d}) is long ({:f} seconds)!".format(
-                        video_id, tier_name, int(ant[0]/1000), int(ant[1]/1000), 
-                        event_duration)
-
-        # session stats
-        print '\033[93m' + "{:s} : {:f} events per minutes".format(
-            video_id, num_events/(end_time/60000)) + '\033[0m'
-        print '\033[93m' + "{:s} : average event duration {:f} sec".format(
-            video_id, duration/num_events) + '\033[0m'
-
-        total_duration += duration
-        total_num_events += num_events
-
-    print 'Total number of events: {:d} from {:d} files'.format(
-        total_num_events, len(file_pairs))
-    print 'Average duration per event: {:f} sec'.format(
-        total_duration/total_num_events)
-
-    return
-
 def main(video_dir, elan_dir, output_dir,
          padding_format=0.1, num_jobs=1, 
          tmp_dir='/tmp/video_trim', check=False):
@@ -214,11 +167,7 @@ def main(video_dir, elan_dir, output_dir,
     if len(files) == 0:
         return
 
-    if check:
-        # check annotations
-        check_annotatoins(files)
-        return
-
+    # parallel trim_video
     if num_jobs == 1:
         status_lst = []
         for file_pair in files:
@@ -251,5 +200,4 @@ if __name__ == '__main__':
                    help='This will pad the temporal axis of the video clips.')
     p.add_argument('-n', '--num-jobs', type=int, default=1)
     p.add_argument('-t', '--tmp-dir', type=str, default='/tmp/video_trim')
-    p.add_argument('-c', '--check', action='store_true', default=False)
     main(**vars(p.parse_args()))
