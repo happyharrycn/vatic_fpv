@@ -3,6 +3,7 @@
 import argparse
 import os
 import glob
+import numpy as np
 
 # database
 from tinydb import TinyDB, Query
@@ -20,7 +21,13 @@ def main(video_dir, output_db, url_prefix, extension='.mp4', frame_rate=24):
     if len(video_files) == 0:
         return
 
-    for video_file in video_files:
+    # make sure we insert video with random order
+    # the user will thus get less context about the video
+    rand_video_idx = np.random.permutation(len(video_files))
+    permutated_video_files = [video_files[idx] for idx in rand_video_idx]
+    
+    # insert the item one by one
+    for video_file in permutated_video_files:
         # parse video info from names
         video_name = os.path.basename(video_file).split(extension)[0]
         tags = video_name.split('-')
