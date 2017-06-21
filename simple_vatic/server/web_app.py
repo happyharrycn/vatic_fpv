@@ -159,7 +159,8 @@ def update_task(annotation_tasks, json_res):
                                     eids=[eid])
             annotation_tasks.update({'name_locked' : False},
                                     eids=[eid])
-            annotation_tasks.update({'named_by_user' : json_res['user_name']})
+            annotation_tasks.update({'named_by_user' : json_res['user_name']},
+                                    eids=[eid])
     else:
         annotation_tasks.update({'trimmed' : True},
                                 eids=[eid])
@@ -172,7 +173,8 @@ def update_task(annotation_tasks, json_res):
                                     eids=[eid])
             annotation_tasks.update({'trim_locked' : False},
                                     eids=[eid])
-            annotation_tasks.update({'trimmed_by_user' : json_res['user_name']})
+            annotation_tasks.update({'trimmed_by_user' : json_res['user_name']},
+                                    eids=[eid])
 
     idx = annotation_tasks.update({'red_flag' : json_res['red_flag']},
                                   eids=[eid])
