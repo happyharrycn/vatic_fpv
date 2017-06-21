@@ -135,6 +135,8 @@ def trim_video(video_file, elan_file, tmp_dir, output_dir, pad):
                                                  stderr=subprocess.STDOUT)
             except subprocess.CalledProcessError as err:
                 return status, err.output
+        else:
+            print "Skipped {:s}".format(output_clip_file)
 
         if os.path.exists(output_clip_file):
             clip_counter += 1

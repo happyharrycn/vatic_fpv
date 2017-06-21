@@ -27,6 +27,7 @@ def main(video_dir, output_db, url_prefix, extension='.mp4', frame_rate=24):
     permutated_video_files = [video_files[idx] for idx in rand_video_idx]
     
     # insert the item one by one
+    num_new_items = 0
     for video_file in permutated_video_files:
         # parse video info from names
         video_name = os.path.basename(video_file).split(extension)[0]
@@ -60,7 +61,12 @@ def main(video_dir, output_db, url_prefix, extension='.mp4', frame_rate=24):
         el = db.get(Query()['url'] == video_item['url'])
         if el is None:
             db.insert(video_item)
+            num_new_items += 1
+        else:
+            print "Skipped {:s}".format(video_name)
 
+    # print the final stats
+    print "Inserted {:d} new video clips into DB".format(num_new_items)
 
 if __name__ == '__main__':
     description = 'Helper script for creating a database using trimmed videos.'
@@ -69,7 +75,8 @@ if __name__ == '__main__':
                    help='Video folder with all mp4 videos.')
     p.add_argument('output_db', type=str,
                    help='Output file where the db will be saved.')
-    p.add_argument('url_prefix', type=str,
+    p.add_argument('-url', '--url_prefix', type=str,
+                   default='http://webshare.ipat.gatech.edu/coc-rim-wall-lab/web/yli440/cropped_videos',
                    help='URL prefix for all videos.')
     p.add_argument('-ext', '--extension', type=str, default='.mp4')
     p.add_argument('-fps', '--frame_rate', type=int, default=24)
