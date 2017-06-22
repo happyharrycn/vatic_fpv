@@ -8,7 +8,7 @@ import numpy as np
 # database
 from tinydb import TinyDB, Query
 
-def main(video_dir, output_db, url_prefix, extension='.mp4', frame_rate=24):
+def main(video_dir, output_db, url_prefix, extension='.mp4'):
     """
     The main function for creating a mini database of videos
     """
@@ -32,7 +32,7 @@ def main(video_dir, output_db, url_prefix, extension='.mp4', frame_rate=24):
         # parse video info from names
         video_name = os.path.basename(video_file).split(extension)[0]
         tags = video_name.split('-')
-        start_frame, end_frame = float(tags[-2]), float(tags[-1])
+        start_time, end_time = float(tags[-2]), float(tags[-1])
         base_video_name = '-'.join(tags[:-2])
 
         # create the data item
@@ -48,8 +48,8 @@ def main(video_dir, output_db, url_prefix, extension='.mp4', frame_rate=24):
             'trim_lock_time' : 0.0,
             'trimmed_by_user' : '', 
             'video_src' : base_video_name,
-            'src_start_frame' : start_frame,
-            'src_end_frame' : end_frame,
+            'src_start_time' : start_time,
+            'src_end_time' : end_time,
             'start_time' : -1.0,
             'end_time' : -1.0,
             'action_verb' : '',
@@ -79,5 +79,4 @@ if __name__ == '__main__':
                    default='http://webshare.ipat.gatech.edu/coc-rim-wall-lab/web/yli440/cropped_videos',
                    help='URL prefix for all videos.')
     p.add_argument('-ext', '--extension', type=str, default='.mp4')
-    p.add_argument('-fps', '--frame_rate', type=int, default=24)
     main(**vars(p.parse_args()))

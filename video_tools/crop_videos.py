@@ -73,7 +73,7 @@ def trim_video(video_file, elan_file, tmp_dir, output_dir, pad):
             end_frame = int(math.ceil(
                 float(ant[1])/1000 * fps))
             # add to crop list
-            event = [start_frame, end_frame]
+            event = [start_frame, end_frame, ant[0], ant[1]]
             crop_list.append(event)
 
     # repack the current video into frames
@@ -82,6 +82,7 @@ def trim_video(video_file, elan_file, tmp_dir, output_dir, pad):
         os.mkdir(tmp_video_dir)
 
     command = ['ffmpeg',
+               '-threads', '1',
                '-i', '{:s}'.format(video_file),
                '-r', '{:s}'.format(str(fps)),
                '-f', 'image2', '-q:v', '1',
@@ -117,12 +118,13 @@ def trim_video(video_file, elan_file, tmp_dir, output_dir, pad):
         # generate output clip
         output_clip_file = os.path.join(output_dir,
                                         '{:s}-{:d}-{:d}.mp4'.format(
-                                            video_id, event[0], event[1]))
+                                            video_id, event[2], event[3]))
         command = ['ffmpeg',
-                   '-r', '{:s}'.format(str(fps)),
+                   '-threads', '1',
                    '-start_number', '{:d}'.format(start_frame),
                    '-i', '{:s}/%010d.jpg'.format(tmp_video_dir),
                    '-vframes', '{:d}'.format(duration),
+                   '-r', '{:s}'.format(str(fps)),
                    '-vcodec', 'libx264',
                    '-b:v', '1800k', '-an',
                    '{:s}'.format(output_clip_file)
@@ -177,7 +179,7 @@ def main(video_dir, elan_dir, output_dir,
                                                  output_dir, padding_format))
     else:
         status_lst = Parallel(n_jobs=num_jobs)(delayed(trim_video_wrapper)(
-            file, tmp_dir, output_dir, padding_format) for idx, file in files)
+            file, tmp_dir, output_dir, padding_format) for file in files)
 
     # Clean tmp dir.
     shutil.rmtree(tmp_dir)
