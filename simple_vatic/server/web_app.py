@@ -117,6 +117,7 @@ def get_next_available_task(annotation_tasks, annotation_type):
     """
     Wrapper for getting a new task
     """
+    start_time = time.time()
     if annotation_type == 'name':
         item = annotation_tasks.get((Query()['named'] == False)
                                     & (Query()['name_locked'] == False))
@@ -124,6 +125,8 @@ def get_next_available_task(annotation_tasks, annotation_type):
         item = annotation_tasks.get((Query()['named'] == True)
                                     & (Query()['trimmed'] == False)
                                     & (Query()['trim_locked'] == False))
+    end_time = time.time()
+    print_log_info("Query task took {:s} ms", (end_time - start_time)*1000.0)
 
     # No task available
     if item == None:
