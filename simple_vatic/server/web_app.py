@@ -126,7 +126,8 @@ def get_next_available_task(annotation_tasks, annotation_type):
                                     & (Query()['trimmed'] == False)
                                     & (Query()['trim_locked'] == False))
     end_time = time.time()
-    print_log_info("Query task took {:s} ms", (end_time - start_time)*1000.0)
+    print_log_info("Query task took {:f} ms".format(
+        (end_time - start_time)*1000.0))
 
     # No task available
     if item == None:
