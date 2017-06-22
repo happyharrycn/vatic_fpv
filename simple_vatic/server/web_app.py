@@ -47,7 +47,6 @@ def expire_locked_items():
 
     # Task: name
     locked_item = ant_tasks.search(Query()['name_locked'] == True)
-
     if len(locked_item) > 0:
         for item in locked_item:
             delay = time.time() - item['name_lock_time']
@@ -59,9 +58,9 @@ def expire_locked_items():
                                        eids=[eid])
                 if idx[0] != eid:
                     print_log_info("Failed to expire task {:d} (Name)".format(eid))
+
     # Task: trim
     locked_item = ant_tasks.search(Query()['trim_locked'] == True)
-
     if len(locked_item) > 0:
         for item in locked_item:
             delay = time.time() - item['trim_lock_time']
