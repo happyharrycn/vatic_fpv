@@ -53,17 +53,17 @@ $( document ).ready(function setup_ui() {
     "Dry": "Dry (Obj) [using (Obj)]",
     "Cut": "Cut (Obj)",
     "Move Around": "Move Around (Obj) [using (Obj)]",
-    "Operate": "Operate (Obj)",
-    "Pour": "Pour (Obj) into (Obj)",
+    "Operate": "Operate (Appliance)",
+    "Pour": "Pour (Obj) from (Obj) into (Obj)",
     "Squeeze": "Squeeze (Obj) [onto (Obj)]",
     "Transfer": "Transfer (Obj) from (Obj) to (Obj)",
     "Spread": "Spread (Obj) over (Obj) [using (Obj)]",
     "Mix": "Mix (Obj) [with (Obj)]",
     "Crack": "Crack (Obj) [into (Obj)]",
-    "Inspect/Read": "Insepect (Obj)",
+    "Inspect/Read": "Inspect (Obj)",
     "Compress": "Compress (Obj) [using (Obj)]",
     "Clean/Wipe": "Clean (Obj) [using (Obj)]",
-    "Divide/Unrip": "Divide (Obj)",
+    "Divide/Pull Apart": "Divide (Obj)",
     "Other": "Type full description in the box!\n verb (obj1, obj2, ...)"
   };
 
@@ -80,7 +80,7 @@ $( document ).ready(function setup_ui() {
     "Cut": "( )",
     "Move Around": "( ) [( )]",
     "Operate": "( )",
-    "Pour": "( ) ( )",
+    "Pour": "( ) ( ) ( )",
     "Squeeze": "( ) [( )]",
     "Transfer": "( ) ( ) ( )",
     "Spread": "( ) ( ) [( )]",
@@ -89,11 +89,9 @@ $( document ).ready(function setup_ui() {
     "Inspect/Read": "( )",
     "Compress": "( ) [( )]",
     "Clean/Wipe": "( ) [( )]",
-    "Divide/Unrip": "( )",
+    "Divide/Pull Apart": "( )",
     "Other": "Type full description in the box!\n verb (obj1, obj2, ...)"
   };
-
-
 
 
   // annotation buttons
@@ -125,7 +123,7 @@ $( document ).ready(function setup_ui() {
           action_header.append('<h4>Name the dominant action ' 
                                + 'in the middle of the clip '
                                + '(<font color="green">ID: ' 
-                               + video_id + '</font> ). </h4>')
+                               + video_id + '</font>). </h4>')
           // setup video player
           var player = videojs('my-player', {
                     controls: true,
@@ -281,7 +279,7 @@ $( document ).ready(function setup_ui() {
               <option>Inspect/Read</option>
               <option>Compress</option>
               <option>Clean/Wipe</option>
-              <option>Divide/Unrip</option>
+              <option>Divide/Pull Apart</option>
               <option>Other</option>
             </select>
 
