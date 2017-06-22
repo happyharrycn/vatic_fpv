@@ -51,7 +51,7 @@ $( document ).ready(function setup_ui() {
               window.location.replace(trim_url);
             } else if (command.toLowerCase() == 'name') {
               window.location.replace(name_url);
-            } else if (command == 'ls') {
+            } else if (command == 'ls' || command == 'dir') {
               this.echo('name');
               this.echo('trim');
             } else {

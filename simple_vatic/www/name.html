@@ -123,8 +123,9 @@ $( document ).ready(function setup_ui() {
           // setup instructions
           video_id = json.id;
           action_header.append('<h4>Name the dominant action ' 
-                               + 'in the middle of the clip (ID: ' 
-                               + video_id + ' ). </h4>')
+                               + 'in the middle of the clip '
+                               + '(<font color="green">ID: ' 
+                               + video_id + '</font> ). </h4>')
           // setup video player
           var player = videojs('my-player', {
                     controls: true,

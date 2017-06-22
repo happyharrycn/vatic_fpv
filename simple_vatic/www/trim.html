@@ -77,8 +77,8 @@ $( document ).ready(function setup_ui() {
 
           // setup the header
           var action_str = json.action_verb + ' (' + json.action_noun.join(',') + ')';
-          action_header.append('<h4>Find the onset and offset of <b>' + action_str 
-                               + '</b> (ID: ' + json.id + ' )</h4>');
+          action_header.append('<h4>Find the onset and offset of <font color="green">' + action_str 
+                               + '</front> (<font color="blue">ID: ' + json.id + '</font> )</h4>');
           // setup the player
           var player = videojs('my-player', {
                       controls: true,
