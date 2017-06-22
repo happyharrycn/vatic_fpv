@@ -5,8 +5,8 @@
 <title>Video Annotation</title>
 
 <!-- css style files from vatic and jquery UI -->
-<link rel="stylesheet" type="text/css" href="css/stylesheet.css">
 <link rel="stylesheet" type="text/css" href="js/jquery-ui-1.12.1.custom/jquery-ui.min.css">
+<link rel="stylesheet" type="text/css" href="css/stylesheet.css">
 
 <!-- jquery and jquery ui (they are placed locally)-->
 <script src="js/jquery-3.2.1.min.js"></script>
@@ -257,7 +257,7 @@ $( document ).ready(function setup_ui() {
 <!-- Instead of using js to generate the html, we will use python to control the UI -->
 
 <div id="container">
-<div id='annotatescreen' style='width:845px'>
+<div id='annotatescreen' style='width:885px'>
 <table style='width:100%'>
     <tr>
        <!--  Instructions  -->
@@ -284,8 +284,15 @@ $( document ).ready(function setup_ui() {
 
         <!-- The side bar that holds display of annotations -->
         <td rowspan="2">
-        <div id='sidebar' style='width:205px;height:280px'></div>
-        <div id='messagebar' style='width:205px;height:200px'></div>
+        <div id='sidebarinfo' style='width:245px;height:160px'>
+          Red flag is only used when
+          <ul>
+          <li>The label (green) is incorrect</li>
+          <li>The action is mostly truncated</li>
+          </ul>
+        </div>
+        <div id='sidebar' style='width:245px;height:200px'></div>
+        <div id='messagebar' style='width:245px;height:120px'></div>
         </td>
     </tr>
 
