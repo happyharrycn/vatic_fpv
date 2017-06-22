@@ -53,7 +53,7 @@ def main(video_dir, output_db, url_prefix, extension='.mp4'):
             'start_time' : -1.0,
             'end_time' : -1.0,
             'action_verb' : '',
-            'action_noun' : [],
+            'action_noun' : '',
             'red_flag' : False
         }
 

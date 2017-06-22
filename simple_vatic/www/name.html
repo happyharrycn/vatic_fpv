@@ -51,7 +51,7 @@ $( document ).ready(function setup_ui() {
     "Turn off": "Turn off (Obj)",
     "Wash": "Wash (Obj)",
     "Dry": "Dry (Obj) [using (Obj)]",
-    "Cut": "Cut (Obj) [using (Obj)]",
+    "Cut": "Cut (Obj)",
     "Move Around": "Move Around (Obj) [using (Obj)]",
     "Operate": "Operate (Obj)",
     "Pour": "Pour (Obj) into (Obj)",
@@ -60,12 +60,40 @@ $( document ).ready(function setup_ui() {
     "Spread": "Spread (Obj) over (Obj) [using (Obj)]",
     "Mix": "Mix (Obj) [with (Obj)]",
     "Crack": "Crack (Obj) [into (Obj)]",
-    "Exam/Read": "Exam (Obj)",
+    "Inspect/Read": "Insepect (Obj)",
     "Compress": "Compress (Obj) [using (Obj)]",
     "Clean/Wipe": "Clean (Obj) [using (Obj)]",
     "Divide/Unrip": "Divide (Obj)",
     "Other": "Type full description in the box!\n verb (obj1, obj2, ...)"
   };
+
+  var verb_strings = {
+    "Open": "( )",
+    "Close": "( )",
+    "Take": "( ) [( )] ",
+    "Put/Release": "( )",
+    "Place": "( ) ( )",
+    "Turn on": "( )",
+    "Turn off": "( )",
+    "Wash": "( )",
+    "Dry": "( ) [( )]",
+    "Cut": "( )",
+    "Move Around": "( ) [( )]",
+    "Operate": "( )",
+    "Pour": "( ) ( )",
+    "Squeeze": "( ) [( )]",
+    "Transfer": "( ) ( ) ( )",
+    "Spread": "( ) ( ) [( )]",
+    "Mix": "( ) [( )]",
+    "Crack": "( ) [( )]",
+    "Inspect/Read": "( )",
+    "Compress": "( ) [( )]",
+    "Clean/Wipe": "( ) [( )]",
+    "Divide/Unrip": "( )",
+    "Other": "Type full description in the box!\n verb (obj1, obj2, ...)"
+  };
+
+
 
 
   // annotation buttons
@@ -100,7 +128,7 @@ $( document ).ready(function setup_ui() {
           // setup video player
           var player = videojs('my-player', {
                     controls: true,
-                    autoplay: false,
+                    autoplay: true,
                     preload: 'auto'
                   }).ready(function() {
 
@@ -121,13 +149,14 @@ $( document ).ready(function setup_ui() {
 
   // create select menu
   action_verb.selectmenu({
-    width: 200,
+    width: 240,
     select: function( event, ui ) {
       var params = verb_params[ui.item.value];
       if (red_flag === false) {
         error_info.empty();
         $('<center> <p><font color="green">' + params + 
         '</font></p></center>').appendTo(error_info);
+        action_nouns.val(verb_strings[ui.item.value]);
       }
     }
   });
@@ -197,7 +226,7 @@ $( document ).ready(function setup_ui() {
 <!-- Instead of using js to generate the html, we will use python to control the UI -->
 
 <div id="container">
-<div id='annotatescreen' style='width:845px'>
+<div id='annotatescreen' style='width:885px'>
 <table style='width:100%'>
     <tr>
        <!--  Instructions  -->
@@ -225,8 +254,8 @@ $( document ).ready(function setup_ui() {
 
         <!-- The side bar that holds display of annotations -->
         <td rowspan="2">
-        <div id='sidebar' class='ui-widget' style='width:205px;height:320px'>
-          <fieldset style='width:200px;'>
+        <div id='sidebar' class='ui-widget' style='width:245px;height:360px'>
+          <fieldset style='width:240px;'>
             <legend>What is the action?</legend>
             <select name="actionverb" id="actionverb">
               <!-- should have moved to js -->
@@ -248,7 +277,7 @@ $( document ).ready(function setup_ui() {
               <option>Spread</option>
               <option>Mix</option>
               <option>Crack</option>
-              <option>Exam/Read</option>
+              <option>Inspect/Read</option>
               <option>Compress</option>
               <option>Clean/Wipe</option>
               <option>Divide/Unrip</option>
@@ -257,20 +286,27 @@ $( document ).ready(function setup_ui() {
 
           </fieldset>
           <br>
-          <fieldset style='width:200px;'>
+          <fieldset style='width:240px;'>
             <legend>Object(s) occluded?</legend>
             <label for="occluded">Occluded</label>
             <input type="checkbox" name="occluded" id="occluded">
           </fieldset>
           <br>
-          <fieldset style='width:200px;'>
+          <fieldset style='width:240px;'>
             <legend>Objects in the action</legend>
-            <label for="objects">Type names of the objects <br> (use comma to separate them) <br> (use "unknown" if not visible)</label>
+            <label for="objects">
+            <ul> 
+            <li>Type names of objects in ( )</li>
+            <li>Use comma to separate them</li>
+            <li>Use "unknown" if not visible</li>
+            <li>Leave blank in [ ] if N/A</li> 
+            </ul>
+            </label>
             <input id="objects" name="objects">
           </fieldset>
 
         </div>
-        <div id='messagebar' style='width:205px;height:160px'></div>
+        <div id='messagebar' style='width:245px;height:120px'></div>
         </td>
     </tr>
 
