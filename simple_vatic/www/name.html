@@ -183,9 +183,10 @@ $( document ).ready(function setup_ui() {
     var verb  = $("#actionverb :selected").text();
     var vis = action_vis.prop('checked');
     var nouns = action_nouns.val();
+    var default_text = verb_strings[verb];
 
     // sanity check 
-    if (nouns.length>0 || red_flag) {
+    if ( (nouns.length>0 && nouns!=default_text ) || red_flag) {
 
         var res_xhr = new XMLHttpRequest();
         res_xhr.open("POST", res_url, true);
@@ -258,6 +259,7 @@ $( document ).ready(function setup_ui() {
             <legend>What is the action?</legend>
             <select name="actionverb" id="actionverb">
               <!-- should have moved to js -->
+              <option disabled selected value>--select a verb--</option>
               <option>Open</option>
               <option>Close</option>
               <option>Take</option>

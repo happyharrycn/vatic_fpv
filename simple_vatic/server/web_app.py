@@ -69,7 +69,7 @@ def collect_db_stats():
                              WHERE red_flag>=1''')
         num_clips_flaged = db_cursor.fetchone()['count(*)']
 
-        print_log_info("Named {:d}, Trimmed {:d}, flagged {:d}, Locked {:d}".format(
+        print_log_info("All Stats: Named {:d}, Trimmed {:d}, flagged {:d}, Locked {:d}".format(
             num_clips_named, num_clips_trimmed, num_clips_flaged, num_clips_locked))
 
     except sqlite3.Error as e:
@@ -164,6 +164,7 @@ def get_next_available_task(annotation_tasks, annotation_type):
     else:
         try:
             db_cursor.execute('''SELECT * FROM video_db WHERE named=1 
+                                                          AND red_flag=0
                                                           AND trimmed=0
                                                           AND trim_locked=0''')
         except sqlite3.Error as e:

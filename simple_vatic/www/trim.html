@@ -69,7 +69,7 @@ $( document ).ready(function setup_ui() {
           error_info.empty();
           $('<center> <p><font color="red">Can not get a new task.' +
             'If this message persists after a few re-try, ' +
-            'then all tasks are done. Thanks!' + 
+            'then all available tasks are done. Thanks!' + 
             '</font></p></center>').appendTo(error_info);
 
         } else { 
@@ -77,6 +77,9 @@ $( document ).ready(function setup_ui() {
 
           // setup the header
           var action_str = json.action_verb + ' ' + json.action_noun;
+          if (json.occluded) {
+            action_str = action_str + ' [Occluded]'
+          } 
           action_header.append('<h4>Find the onset and offset of <font color="green">' + action_str 
                                + '</front> (<font color="blue">ID: ' + json.id + '</font>)</h4>');
           // setup the player
@@ -285,7 +288,7 @@ $( document ).ready(function setup_ui() {
         <!-- The side bar that holds display of annotations -->
         <td rowspan="2">
         <div id='sidebarinfo' style='width:245px;height:160px'>
-          Red flag is only used when
+          <p>Red flag is only used when</p>
           <ul>
           <li>The label (green) is incorrect</li>
           <li>The action is mostly truncated</li>
