@@ -401,6 +401,8 @@ def start_from_terminal():
     # set up one server
     server.start(1)
     print_log_info("Tornado server starting on port {}".format(args.port))
+    # show stats every time we launch the service
+    collect_db_stats()
     tornado.ioloop.PeriodicCallback(expire_locked_items, 20000).start()
     tornado.ioloop.PeriodicCallback(collect_db_stats, 3600*1000).start()
     tornado.ioloop.IOLoop.current().start()
