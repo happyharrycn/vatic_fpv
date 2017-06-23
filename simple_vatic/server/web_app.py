@@ -22,8 +22,8 @@ import sqlite3
 
 # redirect stdout and stderr for logging
 import sys
-#sys.stdout = open('./web_app.log', 'a', 1)
-#sys.stderr = open('./web_app.err', 'a', 1)
+sys.stdout = open('./web_app.log', 'a', 1)
+sys.stderr = open('./web_app.err', 'a', 1)
 
 
 # Obtain the flask app object (and make it cors)
@@ -34,18 +34,48 @@ CORS(app)
 MAX_DELAY = 120
 
 def dict_factory(cursor, row):
-    """Small help function to convert sql item into a dict"""
+    """Helper function to convert sql item into a dict"""
     d = {}
     for idx, col in enumerate(cursor.description):
         d[col[0]] = row[idx]
     return d
 
 def print_log_info(str_info):
-    """
-    Helper function for logging info
-    """
+    """Helper function for logging info"""
     prefix = time.strftime("%Y-%m-%d %H:%M:%S", time.gmtime())
     print "{:s}  {:s}".format(prefix, str_info)
+
+
+def collect_db_stats():
+    """
+    Collect DB stats
+    """
+    ant_tasks = app.annotation_tasks
+    db_cursor = ant_tasks.cursor()
+
+    # show us some stats
+    try:
+        db_cursor.execute('''SELECT count(*) FROM video_db WHERE named=1''')
+        num_clips_named = db_cursor.fetchone()['count(*)']
+
+        db_cursor.execute('''SELECT count(*) FROM video_db WHERE trimmed=1''')
+        num_clips_trimmed = db_cursor.fetchone()['count(*)']
+
+        db_cursor.execute('''SELECT count(*) FROM video_db 
+                             WHERE trim_locked=1 OR name_locked=1''')
+        num_clips_locked = db_cursor.fetchone()['count(*)']
+
+        db_cursor.execute('''SELECT count(*) FROM video_db 
+                             WHERE red_flag>=1''')
+        num_clips_flaged = db_cursor.fetchone()['count(*)']
+
+        print_log_info("Named {:d}, Trimmed {:d}, flagged {:d}, Locked {:d}".format(
+            num_clips_named, num_clips_trimmed, num_clips_flaged, num_clips_locked))
+
+    except sqlite3.Error as e:
+        print_log_info(str(e))    
+
+    return
 
 def expire_locked_items():
     """
@@ -53,15 +83,6 @@ def expire_locked_items():
     """
     ant_tasks = app.annotation_tasks
     db_cursor = ant_tasks.cursor()
-
-    # show us some stats
-    start_time = time.time()
-    db_cursor.execute('''SELECT count(*) FROM video_db WHERE named=1''')
-    num_clips_named = db_cursor.fetchone()['count(*)']
-    db_cursor.execute('''SELECT count(*) FROM video_db WHERE trimmed=1''')
-    num_clips_trimmed = db_cursor.fetchone()['count(*)']
-    print_log_info("Named clips {:d}, Trimmed clips {:d}".format(
-        num_clips_named, num_clips_trimmed))
 
     # Task: name
     db_cursor.execute('''SELECT * FROM video_db WHERE name_locked=1 AND named=0''')
@@ -71,9 +92,12 @@ def expire_locked_items():
         delay = time.time() - item['name_lock_time']
         if delay > MAX_DELAY:
             print_log_info("Expiring task {:d} (Name)".format(item['id']))
-            db_cursor.execute('''UPDATE video_db SET name_locked=0, name_lock_time=? 
-                                 WHERE id=?''', (0.0, item['id']))
-            ant_tasks.commit()
+            try:
+                db_cursor.execute('''UPDATE video_db SET name_locked=0, name_lock_time=? 
+                                     WHERE id=?''', (0.0, item['id']))
+                ant_tasks.commit()
+            except sqlite3.Error as e:
+                print_log_info(str(e))
 
     # Task: trim
     db_cursor.execute('''SELECT * FROM video_db WHERE trim_locked=1 AND trimmed=0''')
@@ -83,13 +107,12 @@ def expire_locked_items():
         delay = time.time() - item['trim_lock_time']
         if delay > MAX_DELAY: 
             print_log_info("Expiring task {:d} (Trim)".format(item['id']))
-            db_cursor.execute('''UPDATE video_db SET trim_locked=0, trim_lock_time=? 
-                                 WHERE id=?''', (0.0, item['id']))
-            ant_tasks.commit()
-
-    end_time = time.time()
-    print_log_info("DB maintainance took {:f} ms".format(
-        (end_time-start_time)*1000))
+            try:
+                db_cursor.execute('''UPDATE video_db SET trim_locked=0, trim_lock_time=? 
+                                     WHERE id=?''', (0.0, item['id']))
+                ant_tasks.commit()
+            except sqlite3.Error as e:
+                print_log_info(str(e))
 
     return
 
@@ -133,7 +156,6 @@ def get_next_available_task(annotation_tasks, annotation_type):
     # get db cursor
     db_cursor = annotation_tasks.cursor()
 
-    start_time = time.time()
     if annotation_type == 'name':
         try:
             db_cursor.execute('''SELECT * FROM video_db WHERE named=0 AND name_locked=0''')
@@ -148,10 +170,6 @@ def get_next_available_task(annotation_tasks, annotation_type):
             print_log_info(str(e))
 
     item = db_cursor.fetchone()
-    print item
-    end_time = time.time()
-    print_log_info("Query task took {:f} ms".format(
-        (end_time - start_time)*1000.0))
 
     # No task available
     if item is None:
@@ -383,6 +401,7 @@ def start_from_terminal():
     server.start(1)
     print_log_info("Tornado server starting on port {}".format(args.port))
     tornado.ioloop.PeriodicCallback(expire_locked_items, 20000).start()
+    tornado.ioloop.PeriodicCallback(collect_db_stats, 3600*1000).start()
     tornado.ioloop.IOLoop.current().start()
 
 if __name__ == '__main__':
