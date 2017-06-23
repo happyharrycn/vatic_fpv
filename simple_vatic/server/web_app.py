@@ -18,19 +18,27 @@ import tornado.wsgi
 import tornado.httpserver
 
 # database
-from tinydb import TinyDB, Query
+import sqlite3
 
 # redirect stdout and stderr for logging
 import sys
-sys.stdout = open('./web_app.log', 'a', 1)
-sys.stderr = open('./web_app.err', 'a', 1)
+#sys.stdout = open('./web_app.log', 'a', 1)
+#sys.stderr = open('./web_app.err', 'a', 1)
+
 
 # Obtain the flask app object (and make it cors)
 app = flask.Flask(__name__) # pylint: disable=invalid-name
 CORS(app)
 
 # max delay for one task
-MAX_DELAY = 300
+MAX_DELAY = 120
+
+def dict_factory(cursor, row):
+    """Small help function to convert sql item into a dict"""
+    d = {}
+    for idx, col in enumerate(cursor.description):
+        d[col[0]] = row[idx]
+    return d
 
 def print_log_info(str_info):
     """
@@ -44,34 +52,45 @@ def expire_locked_items():
     Expires a locked item based on its time stamp
     """
     ant_tasks = app.annotation_tasks
+    db_cursor = ant_tasks.cursor()
+
+    # show us some stats
+    start_time = time.time()
+    db_cursor.execute('''SELECT count(*) FROM video_db WHERE named=1''')
+    num_clips_named = db_cursor.fetchone()['count(*)']
+    db_cursor.execute('''SELECT count(*) FROM video_db WHERE trimmed=1''')
+    num_clips_trimmed = db_cursor.fetchone()['count(*)']
+    print_log_info("Named clips {:d}, Trimmed clips {:d}".format(
+        num_clips_named, num_clips_trimmed))
 
     # Task: name
-    locked_item = ant_tasks.search(Query()['name_locked'] == True)
-    if len(locked_item) > 0:
-        for item in locked_item:
-            delay = time.time() - item['name_lock_time']
-            if delay > MAX_DELAY:
-                eid = item.eid
-                print_log_info("Expiring task {:d} (Name)".format(eid))
-                ant_tasks.update({'name_locked' : False}, eids=[eid])
-                idx = ant_tasks.update({'name_lock_time' : 0.0},
-                                       eids=[eid])
-                if idx[0] != eid:
-                    print_log_info("Failed to expire task {:d} (Name)".format(eid))
+    db_cursor.execute('''SELECT * FROM video_db WHERE name_locked=1 AND named=0''')
+    locked_items = db_cursor.fetchall()
+
+    for item in locked_items:
+        delay = time.time() - item['name_lock_time']
+        if delay > MAX_DELAY:
+            print_log_info("Expiring task {:d} (Name)".format(item['id']))
+            db_cursor.execute('''UPDATE video_db SET name_locked=0, name_lock_time=? 
+                                 WHERE id=?''', (0.0, item['id']))
+            ant_tasks.commit()
 
     # Task: trim
-    locked_item = ant_tasks.search(Query()['trim_locked'] == True)
-    if len(locked_item) > 0:
-        for item in locked_item:
-            delay = time.time() - item['trim_lock_time']
-            if delay > MAX_DELAY:
-                eid = item.eid
-                print_log_info("Expiring task {:d} (Trim)".format(eid))
-                ant_tasks.update({'trim_locked' : False}, eids=[eid])
-                idx = ant_tasks.update({'trim_lock_time' : 0.0},
-                                       eids=[eid])
-                if idx[0] != eid:
-                    print_log_info("Failed to expire task {:d} (Trim)".format(eid))
+    db_cursor.execute('''SELECT * FROM video_db WHERE trim_locked=1 AND trimmed=0''')
+    locked_items = db_cursor.fetchall()
+
+    for item in locked_items:
+        delay = time.time() - item['trim_lock_time']
+        if delay > MAX_DELAY: 
+            print_log_info("Expiring task {:d} (Trim)".format(item['id']))
+            db_cursor.execute('''UPDATE video_db SET trim_locked=0, trim_lock_time=? 
+                                 WHERE id=?''', (0.0, item['id']))
+            ant_tasks.commit()
+
+    end_time = time.time()
+    print_log_info("DB maintainance took {:f} ms".format(
+        (end_time-start_time)*1000))
+
     return
 
 def load_annotation_tasks(video_db):
@@ -79,36 +98,31 @@ def load_annotation_tasks(video_db):
     Wrapper for loading annotations
     """
 
-    # Example item in the db
-    # {
-    #         'id'         : 1,
-    #         'url'            : 'http://vjs.zencdn.net/v/oceans.mp4',
-    #         # tags for annotation
-    #         'named'          : False,
-    #         'occluded'       : False,
-    #         'trimmed'        : False,
-    #         # link to untrimmed full video
-    #         'video_src'      : 'oceans',
-    #         'src_start_time' : 0,
-    #         'src_end_time'   : 0,
-    #         # annotations : action boundary
-    #         'start_time'     : -1.0,
-    #         'end_time'       : -1.0,
-    #         # annotations : action names
-    #         'action_verb'    : '',
-    #         'action_noun'    : []
-    #         # lock session for concurrent tasks
-    #         'name_locked' : False,
-    #         'name_lock_time' : 0.0,
-    #         'trim_locked' : False,
-    #         'trim_lock_time' : 0.0,
-    #         # simple user tracker
-    #         'named_by_user' : [],
-    #         'trimmed_by_user' : []
-    # }
+    # id integer primary key, 
+    # url text, 
+    # named integer, 
+    # name_locked integer, 
+    # name_lock_time real,
+    # named_by_user text, 
+    # occluded integer, 
+    # trimmed integer, 
+    # trim_locked integer,
+    # trim_lock_time real,
+    # trimmed_by_user text,
+    # video_src text
+    # src_start_time integer,
+    # src_end_time integer,
+    # pad_start_frame integer,
+    # pad_end_frame integer,
+    # start_time real,
+    # end_time real,
+    # action_verb text,
+    # action_noun text,
+    # red_falg integer
 
-    # Instantiate a json database
-    annotation_tasks = TinyDB(video_db)
+    # Instantiate a connection to db
+    annotation_tasks = sqlite3.connect(video_db)
+    annotation_tasks.row_factory = dict_factory
     # returns the database
     return annotation_tasks
 
@@ -116,91 +130,99 @@ def get_next_available_task(annotation_tasks, annotation_type):
     """
     Wrapper for getting a new task
     """
+    # get db cursor
+    db_cursor = annotation_tasks.cursor()
+
     start_time = time.time()
     if annotation_type == 'name':
-        item = annotation_tasks.get((Query()['named'] == False)
-                                    & (Query()['name_locked'] == False))
+        try:
+            db_cursor.execute('''SELECT * FROM video_db WHERE named=0 AND name_locked=0''')
+        except sqlite3.Error as e:
+            print_log_info(str(e))
     else:
-        item = annotation_tasks.get((Query()['named'] == True)
-                                    & (Query()['trimmed'] == False)
-                                    & (Query()['trim_locked'] == False))
+        try:
+            db_cursor.execute('''SELECT * FROM video_db WHERE named=1 
+                                                          AND trimmed=0
+                                                          AND trim_locked=0''')
+        except sqlite3.Error as e:
+            print_log_info(str(e))
+
+    item = db_cursor.fetchone()
+    print item
     end_time = time.time()
     print_log_info("Query task took {:f} ms".format(
         (end_time - start_time)*1000.0))
 
     # No task available
-    if item == None:
+    if item is None:
         return None
     else:
-        task = dict(item)
-        eid = item.eid
-        task['id'] = eid
+        task = item
         cur_time = time.time()
         # update the lock
         if annotation_type == 'name':
-            annotation_tasks.update({'name_locked' : True}, eids=[eid])
-            idx = annotation_tasks.update({'name_lock_time' : cur_time},
-                                          eids=[eid])
-            if idx[0] != eid:
-                return None
+            try:
+                db_cursor.execute('''UPDATE video_db SET name_locked=1, name_lock_time=? 
+                                     WHERE id=?''', (cur_time, task['id']))
+            except sqlite3.Error as e:
+                print_log_info(str(e))
         else:
-            annotation_tasks.update({'trim_locked' : True}, eids=[eid])
-            idx = annotation_tasks.update({'trim_lock_time' : cur_time},
-                                          eids=[eid])
-            if idx[0] != eid:
-                return None
+            try:
+                db_cursor.execute('''UPDATE video_db SET trim_locked=1, trim_lock_time=? 
+                                     WHERE id=?''', (cur_time, task['id']))
+            except sqlite3.Error as e:
+                print_log_info(str(e))
 
+    annotation_tasks.commit()
     return task
 
 def update_task(annotation_tasks, json_res):
     """
     Wrapper for updating a existing task. Quick and Dirty
     """
+    # get db cursor
+    db_cursor = annotation_tasks.cursor()
+
     # get annotation_type and video id
     ant_type = json_res['annotation_type']
-    eid = json_res['id']
 
     # find the task to update
     if ant_type == 'name':
-        # explicite update of the fields
-        idx = annotation_tasks.update({'occluded' : json_res['occluded']},
-                                      eids=[eid])
-        idx = annotation_tasks.update({'action_noun' : json_res['nouns'].split(',')},
-                                      eids=[eid])
-        idx = annotation_tasks.update({'action_verb' : json_res['verb']},
-                                      eids=[eid])
-        if idx[0] == eid:
-            annotation_tasks.update({'named' : True},
-                                    eids=[eid])
-            annotation_tasks.update({'name_locked' : False},
-                                    eids=[eid])
-            annotation_tasks.update({'named_by_user' : json_res['user_name']},
-                                    eids=[eid])
+        update_item = (int(json_res['occluded']), 
+                       json_res['nouns'], json_res['verb'],
+                       json_res['user_name'], int(json_res['red_flag'])*1, 
+                       int(json_res['id']))
+        try:           
+            db_cursor.execute('''UPDATE video_db 
+                                 SET named=1, name_locked=0, occluded=?, 
+                                 action_noun=?, action_verb=?, named_by_user=?, red_flag=? 
+                                 WHERE id=?''', update_item)
+            annotation_tasks.commit()
+        except sqlite3.Error as e:
+            print_log_info(str(e))
+            return False
     else:
-        annotation_tasks.update({'trimmed' : True},
-                                eids=[eid])
-        annotation_tasks.update({'start_time' : json_res['start_time']},
-                                eids=[eid])
-        idx = annotation_tasks.update({'end_time' : json_res['end_time']},
-                                      eids=[eid])
-        if idx[0] == eid:
-            annotation_tasks.update({'trimmed' : True},
-                                    eids=[eid])
-            annotation_tasks.update({'trim_locked' : False},
-                                    eids=[eid])
-            annotation_tasks.update({'trimmed_by_user' : json_res['user_name']},
-                                    eids=[eid])
-
-    idx = annotation_tasks.update({'red_flag' : json_res['red_flag']},
-                                  eids=[eid])
+        update_item = (float(json_res['start_time']), 
+                       float(json_res['end_time']),
+                       json_res['user_name'], int(json_res['red_flag'])*2, 
+                       int(json_res['id']))
+        try:
+            db_cursor.execute('''UPDATE video_db 
+                                 SET trimmed=1, trim_locked=0, 
+                                 start_time=?, end_time=?, trimmed_by_user=?, red_flag=?
+                                 WHERE id=?''', update_item)
+            annotation_tasks.commit()
+        except sqlite3.Error as e:
+            print_log_info(str(e))
+            return False
 
     # color print the red flag
     if json_res['red_flag']:
         print_log_info('\033[93m' + "Task ID ({:d}) Type ({:s}) has been RED_FLAGED!".format(
-            eid, ant_type) + '\033[0m')
+            json_res['id'], ant_type) + '\033[0m')
 
-    # return true if task is updated, false if not
-    return idx[0] == eid
+    # return
+    return True
 
 @app.errorhandler(404)
 def not_found(error):
@@ -261,7 +283,7 @@ def get_task():
         ret['error_msg'] = str(err)
     except:
         ret['code'] = -4
-        ret['error_msg'] = 'unkown error'
+        ret['error_msg'] = 'SQL query error'
 
     return json.dumps(ret)
 
@@ -350,10 +372,17 @@ def start_from_terminal():
     # start web server using tornado
     server = tornado.httpserver.HTTPServer(tornado.wsgi.WSGIContainer(app))
     server.bind(args.port)
+
+    # setup exist function
+    def save_db():
+        app.annotation_tasks.close()
+    import atexit
+    atexit.register(save_db)
+
     # set up one server
     server.start(1)
     print_log_info("Tornado server starting on port {}".format(args.port))
-    tornado.ioloop.PeriodicCallback(expire_locked_items, 5000).start()
+    tornado.ioloop.PeriodicCallback(expire_locked_items, 20000).start()
     tornado.ioloop.IOLoop.current().start()
 
 if __name__ == '__main__':
