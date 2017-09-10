@@ -9,8 +9,8 @@ We now have
 
 ## Dependencies
 
-* Python: flask werkzeug tornado (pip install them)
-* Cross-Origin Resource Sharing enabled (depends on your browser and web server)
+* Python: flask flask_cors werkzeug tornado (pip install them)
+* Cross-Origin Resource Sharing is supported via flask_cors
 * Internet Access. We will need to load video.js using CDN
 
 ## Organization of the repo
@@ -28,7 +28,7 @@ We now have
 
 ## To-Do-List
 
-* Fill in the code for task management in web_app.py
+* Integrate with Amazon Mechnical Turk API
 
 ## Flow chart of our pipeline
 
