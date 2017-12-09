@@ -14,23 +14,38 @@
 <script src="js/js.cookie-2.1.4.min.js"></script>
 
 <!-- video.js (using cdn) for playing videos -->
-<link href="http://vjs.zencdn.net/5.19.2/video-js.css" rel="stylesheet">
-<script src="http://vjs.zencdn.net/5.19.2/video.js"></script>
+<link href="https://vjs.zencdn.net/5.19.2/video-js.css" rel="stylesheet">
+<script src="https://vjs.zencdn.net/5.19.2/video.js"></script>
 
 <!-- testing functions -->
 <script>
+
+//http://stackoverflow.com/questions/19491336/get-url-parameter-jquery-or-how-to-get-query-string-values-in-js
+var queryDict = {};
+location.search.substr(1).split("&").forEach(function(item) {queryDict[item.split("=")[0]] = item.split("=")[1]})
+var annotation_type;
+
 $( document ).ready(function setup_ui() {
 
+  // fill in hidden form for submitting mturk
+  $("#endForm").attr("action", "https://workersandbox.mturk.com/mturk/externalSubmit"); 
+  // TODO change url to queryDict["turkSubmitTo"]
+  $('#assignmentId').val(queryDict["assignmentId"]);
+  $('#workerId').val(queryDict["workerId"]);
+  $('#hitId').val(queryDict["hitId"]);
   // get user name
   var vatic_username = Cookies.get('vatic_annotator_name');
   if (vatic_username === undefined) {
     vatic_username = "unknown_user";
   }
+  // set URLs we plan on using
+  var url_base = 'https://' + window.location.hostname + ':5050'
+  var url = url_base + '/get_task'
+  var res_url = url_base + '/return_task'
+  var complete_url = url_base + '/mark_complete'
 
   // request a video from the backend
   var xhr = new XMLHttpRequest();
-  var url = 'http://localhost:5050/get_task'
-  var res_url = 'http://localhost:5050/return_task'
   xhr.open("POST", url, true);
   xhr.setRequestHeader("Content-type", "application/json");
 
@@ -103,8 +118,15 @@ $( document ).ready(function setup_ui() {
 
   // flag the video
   var flag_button = $('#flagbutton');
-  var red_flag = false
+  var red_flag = false;
 
+  // Decide if we are in a mTurk preview window and act accordingly
+  if (queryDict["assignmentId"] == "ASSIGNMENT_ID_NOT_AVAILABLE") {
+    annotation_type = "name_preview";
+    submit_button.remove() // Maybe should just disable? idk.
+  } else {
+    annotation_type = "name";
+  }
   // set up the callback function
   xhr.onreadystatechange = function () {
     if (xhr.readyState === 4 && xhr.status === 200) {
@@ -143,7 +165,10 @@ $( document ).ready(function setup_ui() {
         }  
     }
   };
-  var data = JSON.stringify({"annotation_type": "name", "user_name" : vatic_username});
+  var data = JSON.stringify({"annotation_type": annotation_type, "user_name" : vatic_username,
+      "assignmentId": queryDict["assignmentId"],
+      "workerId": queryDict["workerId"], "hitId": queryDict["hitId"]
+    });
   xhr.send(data);
 
   // create select menu
@@ -191,22 +216,33 @@ $( document ).ready(function setup_ui() {
         var res_xhr = new XMLHttpRequest();
         res_xhr.open("POST", res_url, true);
         res_xhr.setRequestHeader("Content-type", "application/json");
+        // Submit annotation
         res_xhr.onreadystatechange = function () {
-          if (res_xhr.readyState === 4 && res_xhr.status === 200) {
-            var json = JSON.parse(res_xhr.responseText);
+          if (this.readyState === 4 && this.status === 200) {
+            var json = JSON.parse(this.responseText);
+            $('input[name="vatic-response"]').val(this.responseText);
+            console.log(this.responseText)
             console.log(json.code + ", " + json.error_msg);
-            if (json.code === 0) {
+            if (json.code === 0 && json.more_to_complete == true) {
+              // if there are are more tasks to complete, reload to get a new one
               location.reload();  
+            } else if (json.code === 0 && json.more_to_complete == false) {
+              // if there are not more tasks, tell Amazon using the form submission
+              $("#endForm").submit();
             } else {
+              // handle errors
               error_info.empty();
               $('<center> <p><font color="red">' + 
                 json.error_msg + '</font></p></center>').appendTo(error_info);
             }
           }
         };
-        var data = JSON.stringify({"id": video_id, "annotation_type": "name", 
+        var data = JSON.stringify({"id": video_id, "annotation_type": annotation_type, 
           "verb": verb, "occluded" : vis, "nouns": nouns, "red_flag": red_flag, 
-          "user_name" : vatic_username});
+          "user_name" : vatic_username, "assignmentId": queryDict["assignmentId"],
+          "workerId": queryDict["workerId"], "hitId": queryDict["hitId"]
+        });
+        console.log(data); // TODO remove
         res_xhr.send(data);
     } else {
       error_info.empty();
@@ -222,8 +258,6 @@ $( document ).ready(function setup_ui() {
 </head>
 
 <body>
-
-<!-- Instead of using js to generate the html, we will use python to control the UI -->
 
 <div id="container">
 <div id='annotatescreen' style='width:885px'>
@@ -325,15 +359,22 @@ $( document ).ready(function setup_ui() {
                     <font color="red">Flag!</font>
                     </button>
             </div>
+
        
         </td>
         <td>
         <!-- submit button -->
-        <div id='submitbar'>
-            <input id='submitbutton'
-                class="ui-button ui-widget ui-corner-all" 
-                type="submit" value="Submit">
-        </div>
+          <form id = "endForm" action="" method="POST">
+            <div id='submitbar'>
+                <input id='submitbutton'
+                    class="ui-button ui-widget ui-corner-all" 
+                    type="button" value="Submit">
+            </div>
+            <input type="hidden" id="vatic-response" value="" name="vatic-response"/>
+            <input type="hidden" id="assignmentId" value="" name="assignmentId"/>
+            <input type="hidden" id="workerId" value="" name="workerId"/>
+            <input type="hidden" id="hitId" value="" name="hitId"/>
+          </form>
         </td>
     </tr>
 

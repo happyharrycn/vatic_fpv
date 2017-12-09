@@ -198,7 +198,7 @@ if __name__ == '__main__':
                    help='Video folder with all mp4 videos.')
     p.add_argument('elan_dir', type=str,
                    help='Annotation folder with all elan files')
-    p.add_argument('output_dir', type=str,
+    p.add_argument('output_dir', type=str, default='cropped_videos',
                    help='Output directory where cropped videos will be saved.')
     p.add_argument('-p', '--padding-format', type=float, default=0.25,
                    help='This will pad the temporal axis of the video clips.')

@@ -39,8 +39,22 @@ def main(video_dir, output_db, url_prefix, extension='.mp4', pad=0.25):
                      end_time real,
                      action_verb text,
                      action_noun text,
-                     red_flag integer
+                     red_flag integer,
+                     named_by_assignment_id text,
+                     named_by_worker_id text,
+                     named_by_hit_id text,
+                     trimmed_by_assignment_id text,
+                     trimmed_by_worker_id text,
+                     trimmed_by_hit_id text
                      )''')
+    db_cursor.execute('''CREATE TABLE IF NOT EXISTS named_verification_videos (
+    				id INTEGER,
+    				PRIMARY KEY(id)
+    			);''')
+    db_cursor.execute('''CREATE TABLE IF NOT EXISTS trimmed_verification_videos (
+    				id INTEGER,
+    				PRIMARY KEY(id)
+    			);''')
     conn.commit()
 
     # list all video files
@@ -104,12 +118,12 @@ def main(video_dir, output_db, url_prefix, extension='.mp4', pad=0.25):
 if __name__ == '__main__':
     description = 'Helper script for creating a database using trimmed videos.'
     p = argparse.ArgumentParser(description=description)
-    p.add_argument('video_dir', type=str,
+    p.add_argument('video_dir', type=str, default='cropped_videos',
                    help='Video folder with all mp4 videos.')
-    p.add_argument('output_db', type=str,
+    p.add_argument('output_db', type=str, default='video_db.db',
                    help='Output file where the db will be saved.')
     p.add_argument('-url', '--url_prefix', type=str,
-                   default='http://webshare.ipat.gatech.edu/coc-rim-wall-lab/web/yli440/cropped_videos',
+                   default='cropped_videos',
                    help='URL prefix for all videos.')
     p.add_argument('-ext', '--extension', type=str, default='.mp4')
     p.add_argument('-p', '--pad', type=float, default=0.25)

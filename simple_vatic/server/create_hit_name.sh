@@ -1,0 +1,1 @@
+sudo python create_hit.py --labels 1 --sandbox --url "https://example.com/name.html" --aws_key_id "" --aws_key ""

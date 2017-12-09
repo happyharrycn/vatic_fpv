@@ -1,0 +1,1 @@
+sudo python web_app.py --sandbox --aws_key_id "" --aws_key "" --certfile "/etc/letsencrypt/live/example.com/fullchain.pem" --keyfile "/etc/letsencrypt/live/example.com/privkey.pem"
