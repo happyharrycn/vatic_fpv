@@ -103,7 +103,7 @@ $( document ).ready(function setup_ui() {
           if (json.occluded) {
             action_str = action_str + ' [Occluded]'
           } 
-          action_header.append('<h4>Find the onset and offset of <font color="green">' + action_str 
+          action_header.append('<h4 style="margin: 0;">Find the onset and offset of <font color="green">' + action_str 
                                + '</front> (<font color="blue">ID: ' + json.id + '</font>)</h4>');
           // setup the player
           var player = videojs('my-player', {
@@ -297,7 +297,6 @@ $( document ).ready(function setup_ui() {
 <!--        <td> -->
        <div id='instructions'> 
        <div id='instructions-header'></div>
-       You can use the slider to control the video. Click on the start/end button to mark the temporal boundary. When you are done, do remember to submit your annotation!
        </div>
 <!--        </td> -->
 <!--        <td>
@@ -318,6 +317,10 @@ $( document ).ready(function setup_ui() {
         <!-- The side bar that holds display of annotations -->
         <td rowspan="2">
         <div id='sidebarinfo' style='width:245px;height:160px'>
+          <p>
+            You can use the slider to control the video. Click on the start/end
+            button to mark the temporal boundary. When you are done, do remember 
+            to submit your annotation!</p>
           <p>Red flag is only used when</p>
           <ul>
           <li>The label (green) is incorrect</li>
@@ -329,7 +332,7 @@ $( document ).ready(function setup_ui() {
         </td>
     </tr>
 
-    <tr style='height:15px;' ></tr>
+    <tr style='height:2px;' ></tr>
 
     <tr>
         <!-- slider for video player/frame info -->
@@ -345,7 +348,7 @@ $( document ).ready(function setup_ui() {
         </td>
     </tr>
 
-     <tr style='height:42px;' ></tr>
+     <tr style='height:2px;' ></tr>
 
     <tr>
         <!-- play / pause the video -->
