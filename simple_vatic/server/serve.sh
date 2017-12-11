@@ -1,1 +1,1 @@
-sudo python web_app.py --sandbox --aws_key_id "AKIAJHTBJO7HB6A7Q6WQ" --aws_key "oXooC81V7jK8TGYrQGkHjhXZLvegjcYFW1bx2dl0" --certfile "/etc/letsencrypt/live/hussainmumtaz.com/fullchain.pem" --keyfile "/etc/letsencrypt/live/hussainmumtaz.com/privkey.pem"
+sudo python web_app.py --sandbox --aws_key_id "" --aws_key "" --certfile "/etc/letsencrypt/live/hussainmumtaz.com/fullchain.pem" --keyfile "/etc/letsencrypt/live/hussainmumtaz.com/privkey.pem"
