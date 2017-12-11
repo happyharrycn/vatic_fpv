@@ -6,3 +6,5 @@
 *.pfsx
 *.json
 *.pem
+*.db
+*.sh

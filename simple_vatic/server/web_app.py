@@ -114,6 +114,7 @@ def approve_assignments():
         hit_id = str(result["hit_id"])
         task = str(result["task"])
         all_verifications_correct = True
+        print assignment_id
         try:
             if task == "name":
                 mturk_cur.execute("SELECT id, action_noun, action_verb FROM name_verification_attempts WHERE hit_id=?", (hit_id,))
@@ -137,6 +138,7 @@ def approve_assignments():
                         all_verifications_correct = False
                         break
             else: # ie. elif task == "trim":
+                print "trim thing"
                 mturk_cur.execute("SELECT id, start_time, end_time FROM trim_verification_attempts WHERE hit_id=?", (hit_id,))
                 times_query_result = mturk_cur.fetchall()
                 for attempt_times_set in times_query_result:
@@ -168,7 +170,7 @@ def approve_assignments():
                 response = mturk.approve_assignment(assignment_id)
             except boto.mturk.connection.MTurkRequestError as e:
                 print_log_info("MTurk verification rejected. Typically, this means the client's completion "
-                               + "has not been completed on Amazon's end.")
+                               + "has not propagated through Amazon's servers.")
                 print_log_info(str(e))
                 query_result = mturk_cur.fetchone()
                 continue
@@ -287,6 +289,7 @@ def decide_if_needs_verification(json_res, mturk_db_connection):
     except sqlite3.Error as e:
         print_log_info(str(e))
     query_result = mturk_cur.fetchone()
+    print_log_info(json_res['hitId'])
     verifications_total, labels_total, verifications_completed, labels_completed = \
         query_result["verifications_total"], query_result["labels_total"], \
         query_result["verifications_completed"], query_result["labels_completed"]

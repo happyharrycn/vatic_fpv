@@ -3,7 +3,7 @@ import argparse
 import boto.mturk.connection
 
 
-def create_hit(hits, verifications, labels, reward_amount_usd, mturk_db,
+def create_hit(hits, verifications, labels, reward_amount_usd, task, mturk_db,
                sandbox, title, description, url, aws_access_key_id, aws_secret_access_key):
     for i in xrange(hits):
         sandbox_host = 'mechanicalturk.sandbox.amazonaws.com'
@@ -40,9 +40,9 @@ def create_hit(hits, verifications, labels, reward_amount_usd, mturk_db,
         db_cursor = conn.cursor()
         try:
             db_cursor.execute('''INSERT INTO hits(
-                hit_id, verifications_completed, labels_completed,
+                hit_id, task, verifications_completed, labels_completed,
                 verifications_total, labels_total, status)
-                VALUES (?,?,?,?,?,?)''', (hit_id, 0, 0, verifications, labels, 'pending_completion'))
+                VALUES (?,?,?,?,?,?,?)''', (hit_id, task, 0, 0, verifications, labels, 'pending_completion'))
             conn.commit()
             print "Created new HIT:" + str(hit_id)
         except sqlite3.Error as e:
@@ -63,6 +63,9 @@ def parse_args():
     parser.add_argument('--reward_amount_usd', dest='reward_amount_usd',
                         help='Amount of money to pay worker per HIT',
                         default=.05, type=float)
+    parser.add_argument('--task', dest='task',
+                        help='task (name or trim)',
+                        default='name', type=str)
     parser.add_argument('--mturk_db', dest='mturk_db',
                         help='SQLite3 database with logs for mturk',
                         default='mturk_db.db', type=str)
@@ -91,7 +94,7 @@ def parse_args():
 
 def start_from_terminal():
     args = parse_args()
-    create_hit(args.hits, args.verifications, args.labels, args.reward_amount_usd, args.mturk_db,
+    create_hit(args.hits, args.verifications, args.labels, args.reward_amount_usd, args.task, args.mturk_db,
                args.sandbox, args.title, args.description, args.url, args.aws_access_key_id, args.aws_secret_access_key)
 
 

@@ -1,1 +1,1 @@
-sudo python create_hit.py --labels 1 --sandbox --url "https://example.com/name.html" --aws_key_id "" --aws_key ""
+sudo python create_hit.py --task "name" --labels 1 --sandbox --url "https://hussainmumtaz.com/name.html" --aws_key_id "AKIAJHTBJO7HB6A7Q6WQ" --aws_key "oXooC81V7jK8TGYrQGkHjhXZLvegjcYFW1bx2dl0"
